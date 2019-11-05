@@ -2,7 +2,7 @@ import argparse
 
 
 def get_args(arguments=None):
-    parser = argparse.ArgumentParser(description='Random Forest Classifier')
+    parser = argparse.ArgumentParser(description='NeuralNetwork')
 
     parser.add_argument(
         '-m',
