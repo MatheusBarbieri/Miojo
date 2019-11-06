@@ -1,8 +1,11 @@
+.PHONY: setup
 setup:
 	pip install -r requirements.txt
 
-setup-dev:
-	pip install -r requirements.txt -r requirements_dev.txt
+.PHONY: setup-dev
+setup-dev: setup
+	pip install -r requirements_dev.txt
 
+.PHONY: lint
 lint:
 	flake8
