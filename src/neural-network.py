@@ -28,5 +28,14 @@ class NeuralNetwork:
             inputs = sigmoid(np.dot(weights, bias_inputs))
         return inputs
 
+    def feedforward(self, instance):
+        inputs = instance
+        activations = []
+        for weights in self.weights:
+            bias_inputs = add_bias(inputs)
+            inputs = sigmoid(np.dot(weights, bias_inputs))
+            activations.append(inputs)
+        return activations
+
     def backpropagation(self):
         pass
