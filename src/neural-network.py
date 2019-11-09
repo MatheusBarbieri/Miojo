@@ -1,5 +1,5 @@
 import numpy as np
-from numba import vectorize
+from numba import vectorize, jit
 
 
 def generate_random_weights(layers):
@@ -16,12 +16,17 @@ def sigmoid(z):
 
 
 @vectorize()
-def loss(x, y):
+def _loss(x, y):
     if x == 0:
         x = 1e-50
     elif x == 1:
         x = 1 - 1e-50
     return -y * np.log(x) - (1 - y) * np.log(1 - x)
+
+
+@jit(nopython=True)
+def loss(x, y):
+    return _loss(x, y).sum()
 
 
 class NeuralNetwork:
