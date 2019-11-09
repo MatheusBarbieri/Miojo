@@ -1,4 +1,5 @@
 import numpy as np
+from numba import vectorize
 
 
 def generate_random_weights(layers):
@@ -9,18 +10,24 @@ def add_bias(instance):
     return np.insert(instance, 0, 1, axis=0)
 
 
+@vectorize()
 def sigmoid(z):
     return 1 / (1 + np.exp(-z))
 
 
-def loss_function():
-    pass
+@vectorize()
+def loss(x, y):
+    if x == 0:
+        x = 1e-50
+    elif x == 1:
+        x = 1 - 1e-50
+    return -y * np.log(x) - (1 - y) * np.log(1 - x)
 
 
 class NeuralNetwork:
     def __init__(self, layers=[5, 5, 5, 2], weights=None):
         self.layers = layers
-        self.weights = weights if weights is not None else generate_random_weights(layers)
+        self.weights = weights if weights is not None else generate_random_weights(np.array(layers))
 
     def train(self, batches_size=10):
         pass
