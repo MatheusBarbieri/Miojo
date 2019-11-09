@@ -1,5 +1,5 @@
 import numpy as np
-from numba import vectorize, jit
+from numba import vectorize
 
 
 def generate_random_weights(layers):
@@ -24,9 +24,16 @@ def _loss(x, y):
     return -y * np.log(x) - (1 - y) * np.log(1 - x)
 
 
-@jit(nopython=True)
-def loss(x, y):
-    return _loss(x, y).sum()
+def loss(x, y, regularization_factor, neural_network_weights):
+    all_loss = np.array([_loss(a, b).sum() for a, b in zip(x, y)])
+    mean_loss = all_loss.mean()
+
+    number_of_examples = len(x)
+    regularization_acc = 0
+    for layer_weight in neural_network_weights:
+        regularization_acc += np.power(layer_weight[:, 1:], 2).sum()
+
+    return (regularization_factor / number_of_examples / 2 * regularization_acc) + mean_loss
 
 
 class NeuralNetwork:
