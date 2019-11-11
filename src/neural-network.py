@@ -18,20 +18,16 @@ def sigmoid(z):
 @vectorize()
 def _loss(x, y):
     if x == 0:
-        x = 1e-50
+        x = 1e-15
     elif x == 1:
-        x = 1 - 1e-50
+        x = 1 - 1e-15
     return -y * np.log(x) - (1 - y) * np.log(1 - x)
 
 
-def loss(x, y, regularization_factor, neural_network_weights):
-    all_loss = np.array([_loss(a, b).sum() for a, b in zip(x, y)])
-    mean_loss = all_loss.mean()
+def loss(result, expected):
+    all_loss = np.array([_loss(r, e).sum() for r, e in zip(result, expected)])
+    return all_loss.mean()
 
-    number_of_examples = len(x)
-    regularization_acc = 0
-    for layer_weight in neural_network_weights:
-        regularization_acc += np.power(layer_weight[:, 1:], 2).sum()
 
     return (regularization_factor / number_of_examples / 2 * regularization_acc) + mean_loss
 
