@@ -8,3 +8,6 @@
 
 #pycache
 __pycache__/
+
+#jupyter
+experimentation/
