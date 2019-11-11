@@ -29,7 +29,14 @@ def loss(result, expected):
     return all_loss.mean()
 
 
-    return (regularization_factor / number_of_examples / 2 * regularization_acc) + mean_loss
+def chunks(array, chunks_size):
+    iterations = len(array) // chunks_size + 1
+
+    chunks = []
+    for i in range(iterations):
+        chunks.append(array[i * chunks_size: (i + 1) * chunks_size])
+
+    return np.array(chunks)
 
 
 class NeuralNetwork:
