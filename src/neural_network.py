@@ -69,8 +69,8 @@ class NeuralNetwork:
             activations_batch = [self.feedforward(e) for e in examples_batch]
             self.backpropagate(expected_batch, activations_batch)
 
-    def loss_regularization(self, x, y):
-        number_of_examples = len(x)
+    def loss_regularization(self, results):
+        number_of_examples = len(results)
 
         regularization_acc = 0
         for layer_weights in self.weights:
@@ -78,9 +78,9 @@ class NeuralNetwork:
 
         return (self.regularization_factor / number_of_examples / 2 * regularization_acc)
 
-    def loss(self, x, y, regularize=True):
-        losses = loss(x, y)
-        regularization = self.loss_regularization(x, y) if regularize else 0
+    def loss(self, results, expected, regularize=True):
+        losses = loss(results, expected)
+        regularization = self.loss_regularization(results) if regularize else 0
         return losses + regularization
 
     def predict(self, instance):
@@ -104,15 +104,7 @@ class NeuralNetwork:
         self.weights = self.weights - self.learning_rate * gradients
 
     def backpropagate(self, expected_batch, activations_batch):
-        gradients_batch = np.array([
-            self._gradients(expected, activations)
-            for expected, activations
-            in zip(expected_batch, activations_batch)
-        ])
-
-        n = len(expected_batch)
-
-        regularized_mean_gradients = (gradients_batch.sum(0) + self._gradient_regularization()) / n
+        regularized_mean_gradients = _regularized_mean_gradients(expected_batch, activations_batch)
         self._update_weights(regularized_mean_gradients)
 
     def _delta(self, layer_weights, deltas, activations):
@@ -152,3 +144,14 @@ class NeuralNetwork:
     def _gradients(self, expected, activations):
         deltas = self._deltas(expected, activations)
         return self._calculate_gradients(deltas, activations)
+
+    def _regularized_mean_gradients(self, expected_batch, activations_batch):
+        gradients_batch = np.array([
+            self._gradients(expected, activations)
+            for expected, activations
+            in zip(expected_batch, activations_batch)
+        ])
+
+        n = len(expected_batch)
+        regularized_mean_gradients = (gradients_batch.sum(0) + self._gradient_regularization()) / n
+        return regularized_mean_gradients
