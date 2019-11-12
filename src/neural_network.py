@@ -1,28 +1,10 @@
 import numpy as np
-from numba import vectorize
+
+from src.mathematics import sigmoid, loss
 
 
 def add_bias(instance):
     return np.insert(instance, 0, 1, axis=0)
-
-
-@vectorize()
-def sigmoid(z):
-    return 1 / (1 + np.exp(-z))
-
-
-@vectorize()
-def _loss(x, y):
-    if x == 0:
-        x = 1e-15
-    elif x == 1:
-        x = 1 - 1e-15
-    return -y * np.log(x) - (1 - y) * np.log(1 - x)
-
-
-def loss(result, expected):
-    all_loss = np.array([_loss(r, e).sum() for r, e in zip(result, expected)])
-    return all_loss.mean()
 
 
 def chunks(array, chunks_size):
