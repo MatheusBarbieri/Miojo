@@ -40,12 +40,45 @@ def chunks(array, chunks_size):
 
 
 class NeuralNetwork:
-    def __init__(self, layers=[5, 5, 5, 2], weights=None):
+    def __init__(self,
+                 layers=[2, 4, 3, 2],
+                 weights=None,
+                 regularization_factor=0.25,
+                 learning_rate=0.1,
+                 batch_size=32):
         self.layers = layers
+        self.num_layers = len(layers)
         self.weights = weights if weights is not None else generate_random_weights(np.array(layers))
+        self.regularization_factor = regularization_factor
+        self.learning_rate = learning_rate
+        self.batch_size = batch_size
 
-    def train(self, batches_size=10):
-        pass
+    def train(self, examples, expected):
+        total_examples = len(examples)
+        total_expected = len(expected)
+        if total_examples != total_expected:
+            raise Exception('Examples and expected results must match in quantity!')
+
+        examples_batches = chunks(examples, self.batch_size)
+        expected_batches = chunks(expected, self.batch_size)
+
+        for examples_batch, expected_batch in zip(examples_batches, expected_batches):
+            activations_batch = [self.feedforward(e) for e in examples_batch]
+            self.backpropagate(expected_batch, activations_batch)
+
+    def loss_regularization(self, x, y):
+        number_of_examples = len(x)
+
+        regularization_acc = 0
+        for layer_weights in self.weights:
+            regularization_acc += np.power(layer_weights[:, 1:], 2).sum()
+
+        return (self.regularization_factor / number_of_examples / 2 * regularization_acc)
+
+    def loss(self, x, y):
+        losses = loss(x, y)
+        regularization = self.loss_regularization(x, y)
+        return losses + regularization
 
     def predict(self, instance):
         inputs = instance
@@ -55,13 +88,64 @@ class NeuralNetwork:
         return inputs
 
     def feedforward(self, instance):
-        inputs = instance
         activations = []
+        inputs = instance
         for weights in self.weights:
             bias_inputs = add_bias(inputs)
-            inputs = sigmoid(np.dot(weights, bias_inputs))
             activations.append(inputs)
+            inputs = sigmoid(np.dot(weights, bias_inputs))
+        activations.append(inputs)
         return activations
 
-    def backpropagation(self):
-        pass
+    def _update_weights(self, gradients):
+        self.weights = self.weights - self.learning_rate * gradients
+
+    def backpropagate(self, expected_batch, activations_batch):
+        gradients_batch = np.array([
+            self._gradients(expected, activations)
+            for expected, activations
+            in zip(expected_batch, activations_batch)
+        ])
+
+        n = len(expected_batch)
+
+        regularized_mean_gradients = (gradients_batch.sum(0) + self._gradient_regularization()) / n
+        self._update_weights(regularized_mean_gradients)
+
+    def _delta(self, layer_weights, deltas, activations):
+        t_weights = np.transpose(layer_weights)
+        return (np.dot(t_weights, deltas)[1:] * activations * (1 - activations))
+
+    def _deltas(self, expected, activations):
+        output_deltas = activations[-1] - expected
+
+        deltas = [output_deltas]
+
+        outter_deltas = output_deltas
+        for index in range(self.num_layers - 2, 0, -1):
+            outter_deltas = self._delta(self.weights[index], outter_deltas, activations[index])
+            deltas.append(outter_deltas)
+
+        return deltas[::-1]
+
+    def _gradient(self, deltas, activations):
+        return np.outer(deltas, add_bias(activations))
+
+    def _gradient_regularization(self):
+        regularizations = []
+        for weights in self.weights:
+            regularization = np.zeros(weights.shape)
+            regularization[:, 1:] = self.regularization_factor * weights[:, 1:]
+            regularizations.append(regularization)
+        return np.array(regularizations)
+
+    def _calculate_gradients(self, deltas, activations):
+        return np.array([
+            self._gradient(layer_deltas, layer_activations)
+            for layer_deltas, layer_activations
+            in zip(deltas, activations)
+        ])
+
+    def _gradients(self, expected, activations):
+        deltas = self._deltas(expected, activations)
+        return self._calculate_gradients(deltas, activations)
