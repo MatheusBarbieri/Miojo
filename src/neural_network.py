@@ -10,13 +10,15 @@ class NeuralNetwork:
                  weights=None,
                  regularization_factor=0.25,
                  learning_rate=0.1,
-                 batch_size=32):
+                 batch_size=32,
+                 epochs=1):
         self.layers = np.array(layers)
         self.num_layers = len(layers)
         self.weights = weights if weights is not None else self.generate_random_weights()
         self.regularization_factor = regularization_factor
         self.learning_rate = learning_rate
         self.batch_size = batch_size
+        self.epochs = epochs
 
     def generate_random_weights(self):
         return np.array([
@@ -34,9 +36,10 @@ class NeuralNetwork:
         examples_batches = chunks(examples, self.batch_size)
         expected_batches = chunks(expected, self.batch_size)
 
-        for examples_batch, expected_batch in zip(examples_batches, expected_batches):
-            activations_batch = [self.feedforward(e) for e in examples_batch]
-            self.backpropagate(expected_batch, activations_batch)
+        for epoch in range(self.epochs):
+            for examples_batch, expected_batch in zip(examples_batches, expected_batches):
+                activations_batch = [self.feedforward(e) for e in examples_batch]
+                self.backpropagate(expected_batch, activations_batch)
 
     def loss_regularization(self, results):
         number_of_examples = len(results)
