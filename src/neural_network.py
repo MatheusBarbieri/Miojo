@@ -65,11 +65,9 @@ class NeuralNetwork:
         regularization = self.loss_regularization(results) if regularize else 0
         return losses + regularization
 
-    def predict(self, instance):
-        inputs = instance
+    def predict(self, inputs):
         for weights in self.weights:
-            bias_inputs = add_bias(inputs)
-            inputs = sigmoid(np.dot(weights, bias_inputs))
+            inputs = sigmoid(np.dot(weights, add_bias(inputs)))
         return inputs
 
     def feedforward(self, instance):
