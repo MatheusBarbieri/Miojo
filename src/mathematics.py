@@ -8,7 +8,7 @@ def sigmoid(z):
 
 
 @vectorize()
-def _loss(x, y):
+def _log_loss(x, y):
     if x == 0:
         x = 1e-15
     elif x == 1:
@@ -16,6 +16,6 @@ def _loss(x, y):
     return -y * np.log(x) - (1 - y) * np.log(1 - x)
 
 
-def loss(result, expected):
-    all_loss = np.array([_loss(r, e).sum() for r, e in zip(result, expected)])
+def log_loss(result, expected):
+    all_loss = np.array([_log_loss(r, e).sum() for r, e in zip(result, expected)])
     return all_loss.mean()

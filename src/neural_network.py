@@ -1,6 +1,6 @@
 import numpy as np
 
-from src.mathematics import sigmoid, loss
+from src.mathematics import sigmoid, log_loss
 from src.util import add_bias, chunks
 
 
@@ -48,7 +48,7 @@ class NeuralNetwork:
         return (self.regularization_factor / number_of_examples / 2 * regularization_acc)
 
     def loss(self, results, expected, regularize=True):
-        losses = loss(results, expected)
+        losses = log_loss(results, expected)
         regularization = self.loss_regularization(results) if regularize else 0
         return losses + regularization
 
