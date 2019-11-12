@@ -26,10 +26,18 @@ def _stratified_k_folds(df, k, add_remaining, seed):
     return folds
 
 
-def generate_k_folds(df, k, sampling='stratified', add_remaining=True, seed=randint(10000)):
+def k_folds(df, k, sampling='stratified', add_remaining=True, seed=randint(10000)):
     if sampling == 'random':
         return _random_k_folds(df, k, add_remaining, seed)
     elif sampling == 'stratified':
         return _stratified_k_folds(df, k, add_remaining, seed)
     else:
         raise Exception("Sampling parameter must be one of [stratified, random]")
+
+
+def splits(folds):
+    sets = []
+    for i, fold in enumerate(folds):
+        sets.append((pd.concat(folds[:i] + folds[i + 1:]), folds[i]))
+
+    return sets
