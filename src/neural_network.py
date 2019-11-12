@@ -104,7 +104,7 @@ class NeuralNetwork:
         self.weights = self.weights - self.learning_rate * gradients
 
     def backpropagate(self, expected_batch, activations_batch):
-        regularized_mean_gradients = _regularized_mean_gradients(expected_batch, activations_batch)
+        regularized_mean_gradients = self._regularized_mean_gradients(expected_batch, activations_batch)
         self._update_weights(regularized_mean_gradients)
 
     def _delta(self, layer_weights, deltas, activations):
