@@ -2,10 +2,6 @@ import numpy as np
 from numba import vectorize
 
 
-def generate_random_weights(layers):
-    return np.array([np.random.rand(input_num, layer_size + 1) for layer_size, input_num in zip(layers, layers[1:])])
-
-
 def add_bias(instance):
     return np.insert(instance, 0, 1, axis=0)
 
@@ -46,12 +42,19 @@ class NeuralNetwork:
                  regularization_factor=0.25,
                  learning_rate=0.1,
                  batch_size=32):
-        self.layers = layers
+        self.layers = np.array(layers)
         self.num_layers = len(layers)
-        self.weights = weights if weights is not None else generate_random_weights(np.array(layers))
+        self.weights = weights if weights is not None else self.generate_random_weights()
         self.regularization_factor = regularization_factor
         self.learning_rate = learning_rate
         self.batch_size = batch_size
+
+    def generate_random_weights(self):
+        return np.array([
+            np.random.rand(input_num, layer_size + 1)
+            for layer_size, input_num
+            in zip(self.layers, self.layers[1:])
+        ])
 
     def train(self, examples, expected):
         total_examples = len(examples)
@@ -75,9 +78,9 @@ class NeuralNetwork:
 
         return (self.regularization_factor / number_of_examples / 2 * regularization_acc)
 
-    def loss(self, x, y):
+    def loss(self, x, y, regularize=True):
         losses = loss(x, y)
-        regularization = self.loss_regularization(x, y)
+        regularization = self.loss_regularization(x, y) if regularize else 0
         return losses + regularization
 
     def predict(self, instance):
