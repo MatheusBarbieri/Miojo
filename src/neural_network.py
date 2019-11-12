@@ -27,34 +27,6 @@ class NeuralNetwork:
             in zip(self.layers, self.layers[1:])
         ])
 
-    def train(self, examples, expected):
-        total_examples = len(examples)
-        total_expected = len(expected)
-        if total_examples != total_expected:
-            raise Exception('Examples and expected results must match in quantity!')
-
-        examples_batches = chunks(examples, self.batch_size)
-        expected_batches = chunks(expected, self.batch_size)
-
-        for epoch in range(self.epochs):
-            for examples_batch, expected_batch in zip(examples_batches, expected_batches):
-                activations_batch = [self.feedforward(e) for e in examples_batch]
-                self.backpropagate(expected_batch, activations_batch)
-
-    def loss_regularization(self, results):
-        number_of_examples = len(results)
-
-        regularization_acc = 0
-        for layer_weights in self.weights:
-            regularization_acc += np.power(layer_weights[:, 1:], 2).sum()
-
-        return (self.regularization_factor / number_of_examples / 2 * regularization_acc)
-
-    def loss(self, results, expected, regularize=True):
-        losses = log_loss(results, expected)
-        regularization = self.loss_regularization(results) if regularize else 0
-        return losses + regularization
-
     def predict(self, inputs):
         for weights in self.weights:
             inputs = sigmoid(np.dot(weights, add_bias(inputs)))
@@ -69,13 +41,6 @@ class NeuralNetwork:
             inputs = sigmoid(np.dot(weights, bias_inputs))
         activations.append(inputs)
         return activations
-
-    def _update_weights(self, gradients):
-        self.weights = self.weights - self.learning_rate * gradients
-
-    def backpropagate(self, expected_batch, activations_batch):
-        regularized_mean_gradients = self._regularized_mean_gradients(expected_batch, activations_batch)
-        self._update_weights(regularized_mean_gradients)
 
     def _delta(self, layer_weights, deltas, activations):
         t_weights = np.transpose(layer_weights)
@@ -93,8 +58,16 @@ class NeuralNetwork:
 
         return deltas[::-1]
 
-    def _gradient(self, deltas, activations):
+    def _layer_gradients(self, deltas, activations):
         return np.outer(deltas, add_bias(activations))
+
+    def _gradients(self, expected, activations):
+        deltas = self._deltas(expected, activations)
+        return np.array([
+            self._layer_gradients(layer_deltas, layer_activations)
+            for layer_deltas, layer_activations
+            in zip(deltas, activations)
+        ])
 
     def _gradient_regularization(self):
         regularizations = []
@@ -103,17 +76,6 @@ class NeuralNetwork:
             regularization[:, 1:] = self.regularization_factor * weights[:, 1:]
             regularizations.append(regularization)
         return np.array(regularizations)
-
-    def _calculate_gradients(self, deltas, activations):
-        return np.array([
-            self._gradient(layer_deltas, layer_activations)
-            for layer_deltas, layer_activations
-            in zip(deltas, activations)
-        ])
-
-    def _gradients(self, expected, activations):
-        deltas = self._deltas(expected, activations)
-        return self._calculate_gradients(deltas, activations)
 
     def _regularized_mean_gradients(self, expected_batch, activations_batch):
         gradients_batch = np.array([
@@ -125,3 +87,38 @@ class NeuralNetwork:
         n = len(expected_batch)
         regularized_mean_gradients = (gradients_batch.sum(0) + self._gradient_regularization()) / n
         return regularized_mean_gradients
+
+    def _update_weights(self, gradients):
+        self.weights = self.weights - self.learning_rate * gradients
+
+    def _backpropagate(self, expected_batch, activations_batch):
+        regularized_mean_gradients = self._regularized_mean_gradients(expected_batch, activations_batch)
+        self._update_weights(regularized_mean_gradients)
+
+    def train(self, examples, expected):
+        total_examples = len(examples)
+        total_expected = len(expected)
+        if total_examples != total_expected:
+            raise Exception('Examples and expected results must match in quantity!')
+
+        examples_batches = chunks(examples, self.batch_size)
+        expected_batches = chunks(expected, self.batch_size)
+
+        for epoch in range(self.epochs):
+            for examples_batch, expected_batch in zip(examples_batches, expected_batches):
+                activations_batch = [self.feedforward(e) for e in examples_batch]
+                self._backpropagate(expected_batch, activations_batch)
+
+    def loss_regularization(self, results):
+        number_of_examples = len(results)
+
+        regularization_acc = 0
+        for layer_weights in self.weights:
+            regularization_acc += np.power(layer_weights[:, 1:], 2).sum()
+
+        return (self.regularization_factor / number_of_examples / 2 * regularization_acc)
+
+    def loss(self, results, expected, regularize=True):
+        losses = log_loss(results, expected)
+        regularization = self.loss_regularization(results) if regularize else 0
+        return losses + regularization
