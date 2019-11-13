@@ -8,11 +8,10 @@ def sigmoid(z):
 
 
 @vectorize()
-def _log_loss(x, y):
-    if x == 0:
-        x = 1e-15
-    elif x == 1:
-        x = 1 - 1e-15
+def _log_loss(x, y, epsilon=1e-15):
+    min_value = epsilon
+    max_value = 1 - epsilon
+    x = np.max(np.min(x, max_value), min_value)
     return -y * np.log(x) - (1 - y) * np.log(1 - x)
 
 
