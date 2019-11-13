@@ -11,7 +11,6 @@ def _random_k_folds(df, k, add_remaining, seed):
         df = df.drop(sample.index, errors='ignore')
         folds.append(sample)
 
-    # add remaining elements to folds
     if add_remaining:
         for i in range(len(df)):
             folds[i] = pd.concat([folds[i], df.iloc[i:i+1]])
