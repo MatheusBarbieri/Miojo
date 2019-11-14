@@ -6,7 +6,9 @@ def add_bias(instance):
 
 
 def chunks(array, chunks_size):
-    iterations = len(array) // chunks_size + 1
+    total = len(array)
+    has_last_chunk = int(total % chunks_size != 0)
+    iterations = total // chunks_size + has_last_chunk
 
     chunks = []
     for i in range(iterations):
