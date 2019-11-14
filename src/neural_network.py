@@ -32,7 +32,7 @@ class NeuralNetwork:
             inputs = sigmoid(np.dot(weights, add_bias(inputs)))
         return inputs
 
-    def feedforward(self, instance):
+    def _feedforward(self, instance):
         activations = []
         inputs = instance
         for weights in self.weights:
@@ -106,10 +106,10 @@ class NeuralNetwork:
 
         for epoch in range(self.epochs):
             for examples_batch, expected_batch in zip(examples_batches, expected_batches):
-                activations_batch = [self.feedforward(e) for e in examples_batch]
+                activations_batch = [self._feedforward(e) for e in examples_batch]
                 self._backpropagate(expected_batch, activations_batch)
 
-    def loss_regularization(self, results):
+    def _loss_regularization(self, results):
         number_of_examples = len(results)
 
         regularization_acc = 0
@@ -120,5 +120,5 @@ class NeuralNetwork:
 
     def loss(self, results, expected, regularize=True):
         losses = log_loss(results, expected)
-        regularization = self.loss_regularization(results) if regularize else 0
+        regularization = self._loss_regularization(results) if regularize else 0
         return losses + regularization
