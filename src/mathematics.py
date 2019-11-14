@@ -1,6 +1,8 @@
 import numpy as np
 from numba import vectorize
 
+epsilon = 1e-15
+
 
 @vectorize()
 def sigmoid(z):
@@ -8,10 +10,11 @@ def sigmoid(z):
 
 
 @vectorize()
-def _log_loss(x, y, epsilon=1e-15):
-    min_value = epsilon
-    max_value = 1 - epsilon
-    x = np.max(np.min(x, max_value), min_value)
+def _log_loss(x, y):
+    if x == 0:
+        x = epsilon
+    elif x == 1:
+        x = 1 - epsilon
     return -y * np.log(x) - (1 - y) * np.log(1 - x)
 
 
@@ -20,8 +23,8 @@ def log_loss(result, expected):
     return all_loss.mean()
 
 
-normalize_default_min = 1e-15
-normalize_default_max = 1 - 1e-15
+normalize_default_min = epsilon
+normalize_default_max = 1 - epsilon
 
 
 def normalize(examples, min_value=normalize_default_min, max_value=normalize_default_max):
