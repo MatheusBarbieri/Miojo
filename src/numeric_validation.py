@@ -5,18 +5,23 @@ import numpy as np
 from src.neural_network import NeuralNetwork
 
 
-class GradientNumericValidator:
-    def __init__(self, neural_network: NeuralNetwork, example_batch, expected_batch, epsilon=0.000001):
+class baseValidator:
+    def __init__(self, neural_network: NeuralNetwork, example_batch, expected_batch):
         self._neural_network = neural_network
         self._example_batch = example_batch
         self._expected_batch = expected_batch
+
+    def _neural_network_gradients(self):
+        activations_batch = [self._neural_network._feedforward(e) for e in self._example_batch]
+        return self._neural_network._regularized_mean_gradients(self._expected_batch, activations_batch)
+
+
+class GradientNumericValidator(baseValidator):
+    def __init__(self, neural_network: NeuralNetwork, example_batch, expected_batch, epsilon=0.000001):
+        super().__init__(neural_network, example_batch, expected_batch)
         self._epsilon = epsilon
         self.neural_network_gradients = self._neural_network_gradients()
         self.numeric_gradients = self._numeric_gradients()
-
-    def _neural_network_gradients(self):
-        activations_batch = [self._neural_network.feedforward(e) for e in self._example_batch]
-        return self._neural_network._regularized_mean_gradients(self._expected_batch, activations_batch)
 
     def _numeric_gradients(self):
         new_gradients = [np.zeros(w.shape) for w in self._neural_network.weights]
@@ -52,3 +57,11 @@ class GradientNumericValidator:
 
     def mean_absolute_error(self):
         return self.mean_absolute_error_per_layer().mean()
+
+
+class BackpropagationValidator(baseValidator):
+    def __init__(self, neural_network: NeuralNetwork, example_batch, expected_batch):
+        super().__init__(neural_network, example_batch, expected_batch)
+
+    def show_gradients(self):
+        print(self._neural_network_gradients())
