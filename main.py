@@ -7,6 +7,7 @@ def main():
     args = get_args()
 
     mode = args.mode
+    verbose = args.verbose
 
     if mode in ['backpropagation', 'gradient']:
         neural_network = load_model_from_text(args.network_path, args.weights_path)
@@ -14,7 +15,7 @@ def main():
 
         ValidatorClass = GradientNumericValidator if mode == 'gradient' else BackpropagationValidator
         validator = ValidatorClass(neural_network, examples, results)
-        validator.show()
+        validator.show(verbose=verbose)
 
 
 if __name__ == "__main__":
