@@ -1,5 +1,7 @@
 import numpy as np
 
+from src.neural_network import NeuralNetwork
+
 
 def load_network_from_text(path):
     with open(path) as f:
@@ -36,3 +38,9 @@ def load_weights_from_text(path):
                 layer_weights.append(np.array(weights))
             neural_network_weights.append(np.array(layer_weights))
         return np.array(neural_network_weights)
+
+
+def load_model_from_text(network_path, dataset_path, weights_path):
+    regularization, layers = load_network_from_text(network_path)
+    weights = load_weights_from_text(weights_path)
+    return NeuralNetwork(layers=layers, weights=weights, regularization_factor=regularization)
