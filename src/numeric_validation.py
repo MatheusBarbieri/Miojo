@@ -70,14 +70,15 @@ class GradientNumericValidator(baseValidator):
     def mean_absolute_error(self):
         return self.mean_absolute_error_per_layer().mean()
 
-    def show(self, verbosity=0):
-        print("Gradients from backpropagation:")
-        self.print_structure(self.neural_network_gradients, precision='0.20f')
-        print("\nNumeric gradients:")
-        self.print_structure(self.numeric_gradients, precision='0.20f')
-        print("\nGradients mean absolute error:")
-        self.print_structure(self.mean_absolute_error_per_gradient(), precision='0.20f')
-        print("\nModel mean absolute error:")
+    def show(self, verbose=0):
+        if verbose:
+            print('{:=^80}'.format(' Gradients from Backpropagation '))
+            self.print_structure(self.neural_network_gradients, precision='0.20f')
+            print('{:=^80}'.format(' Numeric Gradients '))
+            self.print_structure(self.numeric_gradients, precision='0.20f')
+            print('{:=^80}'.format(' Gradients mean absolute error '))
+            self.print_structure(self.mean_absolute_error_per_gradient(), precision='0.20f')
+        print('{:=^80}'.format(' Model mean absolute error '))
         print(f'{self.mean_absolute_error():0.20f}')
 
 
@@ -85,6 +86,16 @@ class BackpropagationValidator(baseValidator):
     def __init__(self, neural_network: NeuralNetwork, example_batch, expected_batch):
         super().__init__(neural_network, example_batch, expected_batch)
 
-    def show(self):
+    def show(self, verbose=0):
+        if verbose:
+            print('{:=^80}'.format(' Weights '))
+            self.print_structure(self._neural_network.weights)
+            print('{:=^80}'.format(' Regularization '))
+            print(self._neural_network.regularization_factor)
+            print('{:=^80}'.format(' Inputs '))
+            print(self._example_batch)
+            print('{:=^80}'.format(' Expected Results '))
+            print(self._expected_batch)
+            print('{:=^80}'.format(' Gradients from Backpropagation '))
         all_gradients = self._neural_network_gradients()
         self.print_structure(all_gradients)
