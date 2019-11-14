@@ -64,4 +64,14 @@ class BackpropagationValidator(baseValidator):
         super().__init__(neural_network, example_batch, expected_batch)
 
     def show_gradients(self):
-        print(self._neural_network_gradients())
+        all_gradients = self._neural_network_gradients()
+        for layer_index, layer_gradients in enumerate(all_gradients):
+            for neuron_index, neuron_gradients in enumerate(layer_gradients):
+                for gradient_index, gradient in enumerate(neuron_gradients):
+                    print(f'{gradient:0.5f}', end='')
+                    if gradient_index != len(neuron_gradients) - 1:
+                        print(', ', end='')
+                if neuron_index != len(layer_gradients) - 1:
+                    print('; ', end='')
+                else:
+                    print()
