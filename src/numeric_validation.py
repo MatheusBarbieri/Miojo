@@ -12,7 +12,7 @@ class baseValidator:
         self._expected_batch = expected_batch
 
     def _neural_network_gradients(self):
-        activations_batch = [self._neural_network._feedforward(e) for e in self._example_batch]
+        activations_batch = self._neural_network._feedforward(self._example_batch)
         return self._neural_network._regularized_mean_gradients(self._expected_batch, activations_batch)
 
 

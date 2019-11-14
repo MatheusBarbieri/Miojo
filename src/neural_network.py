@@ -32,15 +32,18 @@ class NeuralNetwork:
             inputs = sigmoid(np.dot(weights, add_bias(inputs)))
         return inputs
 
-    def _feedforward(self, instance):
-        activations = []
-        inputs = instance
-        for weights in self.weights:
-            bias_inputs = add_bias(inputs)
+    def _feedforward(self, instances):
+        all_activations = []
+        for instance in instances:
+            activations = []
+            inputs = instance
+            for weights in self.weights:
+                bias_inputs = add_bias(inputs)
+                activations.append(inputs)
+                inputs = sigmoid(np.dot(weights, bias_inputs))
             activations.append(inputs)
-            inputs = sigmoid(np.dot(weights, bias_inputs))
-        activations.append(inputs)
-        return activations
+            all_activations.append(np.array(activations))
+        return all_activations
 
     def _delta(self, layer_weights, deltas, activations):
         t_weights = np.transpose(layer_weights)
@@ -106,7 +109,7 @@ class NeuralNetwork:
 
         for epoch in range(self.epochs):
             for examples_batch, expected_batch in zip(examples_batches, expected_batches):
-                activations_batch = [self._feedforward(e) for e in examples_batch]
+                activations_batch = self._feedforward(examples_batch)
                 self._backpropagate(expected_batch, activations_batch)
 
     def _loss_regularization(self, results):
