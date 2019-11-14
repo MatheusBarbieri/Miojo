@@ -28,9 +28,12 @@ class NeuralNetwork:
         ])
 
     def predict(self, inputs):
-        for weights in self.weights:
-            inputs = sigmoid(np.dot(weights, add_bias(inputs)))
-        return inputs
+        all_results = []
+        for entry in inputs:
+            for weights in self.weights:
+                entry = sigmoid(np.dot(weights, add_bias(entry)))
+            all_results.append(entry)
+        return np.array(all_results)
 
     def _feedforward(self, instances):
         all_activations = []
