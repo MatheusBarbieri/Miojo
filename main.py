@@ -1,7 +1,6 @@
 from src.command_line import get_args
-from src.neural_network import NeuralNetwork
-from src.file_system import load_dataset_from_text, load_network_from_text, load_weights_from_text
-from src.numeric_validation import BackpropagationValidator
+from src.file_system import load_model_from_text, load_dataset_from_text
+from src.numeric_validation import BackpropagationValidator, GradientNumericValidator
 
 
 def main():
@@ -9,14 +8,13 @@ def main():
 
     mode = args.mode
 
-    if mode == 'backpropagation':
-        regularization, layers = load_network_from_text(args.network_path)
+    if mode in ['backpropagation', 'gradient']:
+        neural_network = load_model_from_text(args.network_path, args.weights_path)
         examples, results = load_dataset_from_text(args.dataset_path)
-        weights = load_weights_from_text(args.weights_path)
 
-        neural_network = NeuralNetwork(layers=layers, weights=weights, regularization_factor=regularization)
-        bp_validator = BackpropagationValidator(neural_network, examples, results)
-        bp_validator.show_gradients()
+        ValidatorClass = GradientNumericValidator if mode == 'gradient' else BackpropagationValidator
+        validator = ValidatorClass(neural_network, examples, results)
+        validator.show()
 
 
 if __name__ == "__main__":

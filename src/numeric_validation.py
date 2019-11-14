@@ -11,6 +11,18 @@ class baseValidator:
         self._example_batch = example_batch
         self._expected_batch = expected_batch
 
+    def print_structure(self, structure, precision='0.5f'):
+        for layer_index, layer_elements in enumerate(structure):
+            for neuron_index, neuron_element in enumerate(layer_elements):
+                for element_index, element in enumerate(neuron_element):
+                    print(f'{element:{precision}}', end='')
+                    if element_index != len(neuron_element) - 1:
+                        print(', ', end='')
+                if neuron_index != len(layer_elements) - 1:
+                    print('; ', end='')
+                else:
+                    print()
+
     def _neural_network_gradients(self):
         activations_batch = self._neural_network._feedforward(self._example_batch)
         return self._neural_network._regularized_mean_gradients(self._expected_batch, activations_batch)
@@ -58,20 +70,21 @@ class GradientNumericValidator(baseValidator):
     def mean_absolute_error(self):
         return self.mean_absolute_error_per_layer().mean()
 
+    def show(self, verbosity=0):
+        print("Gradients from backpropagation:")
+        self.print_structure(self.neural_network_gradients, precision='0.20f')
+        print("\nNumeric gradients:")
+        self.print_structure(self.numeric_gradients, precision='0.20f')
+        print("\nGradients mean absolute error:")
+        self.print_structure(self.mean_absolute_error_per_gradient(), precision='0.20f')
+        print("\nModel mean absolute error:")
+        print(f'{self.mean_absolute_error():0.20f}')
+
 
 class BackpropagationValidator(baseValidator):
     def __init__(self, neural_network: NeuralNetwork, example_batch, expected_batch):
         super().__init__(neural_network, example_batch, expected_batch)
 
-    def show_gradients(self):
+    def show(self):
         all_gradients = self._neural_network_gradients()
-        for layer_index, layer_gradients in enumerate(all_gradients):
-            for neuron_index, neuron_gradients in enumerate(layer_gradients):
-                for gradient_index, gradient in enumerate(neuron_gradients):
-                    print(f'{gradient:0.5f}', end='')
-                    if gradient_index != len(neuron_gradients) - 1:
-                        print(', ', end='')
-                if neuron_index != len(layer_gradients) - 1:
-                    print('; ', end='')
-                else:
-                    print()
+        self.print_structure(all_gradients)
