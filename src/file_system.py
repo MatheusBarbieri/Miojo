@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 
 from src.neural_network import NeuralNetwork
 
@@ -25,6 +26,19 @@ def load_dataset_from_text(path):
             )
 
         return np.array(examples), np.array(results)
+
+
+def load_dataset(path):
+    df = pd.read_csv(path)
+    if 'Class' in df.columns:
+        df = df.rename(columns={'Class': 'class'})
+    elif 'CLASS' in df.columns:
+        df = df.rename(columns={'CLASS': 'class'})
+
+    if 'class' not in df.columns:
+        raise Exception("Dataset does not contains \"Class\" column.")
+
+    return df
 
 
 def load_weights_from_text(path):

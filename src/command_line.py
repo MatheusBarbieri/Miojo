@@ -82,15 +82,6 @@ def get_args(arguments=None):
     )
 
     parser_train.add_argument(
-        "-t",
-        "--target_classes",
-        nargs='+',
-        type=str,
-        required=True,
-        help='Name of dataset columns which are gonna be used as target classes/values.'
-    )
-
-    parser_train.add_argument(
         "-o",
         "--output_path",
         type=str,
