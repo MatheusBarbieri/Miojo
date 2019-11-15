@@ -50,7 +50,7 @@ class NeuralNetwork:
             all_activations.append(np.array(activations))
         return all_activations
 
-    def _delta(self, layer_weights, deltas, activations):
+    def _layer_deltas(self, layer_weights, deltas, activations):
         t_weights = np.transpose(layer_weights)
         return (np.dot(t_weights, deltas)[1:] * activations * (1 - activations))
 
@@ -61,7 +61,7 @@ class NeuralNetwork:
 
         outter_deltas = output_deltas
         for index in range(self.num_layers - 2, 0, -1):
-            outter_deltas = self._delta(self.weights[index], outter_deltas, activations[index])
+            outter_deltas = self._layer_deltas(self.weights[index], outter_deltas, activations[index])
             deltas.append(outter_deltas)
 
         return deltas[::-1]
