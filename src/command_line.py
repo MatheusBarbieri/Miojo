@@ -99,6 +99,47 @@ def get_args(arguments=None):
     )
 
     parser_train.add_argument(
+        "-h",
+        "--hidden_layers",
+        nargs='+',
+        type=int,
+        required=True,
+        help='List of values that represents the number of neurons in inner layers'
+    )
+
+    parser_train.add_argument(
+        "-l",
+        "--learning_rate",
+        type=float,
+        default=0.01,
+        help='Learning rate of the model (weight update factor).'
+    )
+
+    parser_train.add_argument(
+        "-r",
+        "--regularization",
+        type=float,
+        default=0.1,
+        help='Regularization factor parameter.'
+    )
+
+    parser_train.add_argument(
+        "-e",
+        "--epochs",
+        type=int,
+        default=100,
+        help='Size of minibatches used.'
+    )
+
+    parser_train.add_argument(
+        "-b",
+        "--batch_size",
+        type=int,
+        default=32,
+        help='Size of minibatches used.'
+    )
+
+    parser_train.add_argument(
         '-v',
         '--verbose',
         action='count'
