@@ -90,8 +90,8 @@ def get_args(arguments=None):
     )
 
     parser_train.add_argument(
-        "-h",
-        "--hidden_layers",
+        "-s",
+        "--structure",
         nargs='+',
         type=int,
         required=True,
