@@ -1,4 +1,5 @@
 import numpy as np
+import pickle
 
 from src.mathematics import sigmoid, log_loss
 from src.util import add_bias, chunks
@@ -20,7 +21,7 @@ class NeuralNetwork:
         self.learning_rate = learning_rate
         self.batch_size = batch_size
         self.epochs = epochs
-        self.show_loss
+        self.show_loss = show_loss
 
     def generate_random_weights(self):
         return np.array([
@@ -136,3 +137,12 @@ class NeuralNetwork:
         losses = log_loss(results, expected)
         regularization = self._loss_regularization(results) if regularize else 0
         return losses + regularization
+
+    def save(self, path):
+        with open(path, 'wb+') as f:
+            pickle.dump(self, f)
+
+    @classmethod
+    def load(cls, path):
+        with open(path, 'rb') as f:
+            return pickle.load(f)
