@@ -35,9 +35,6 @@ def load_dataset(path):
     elif 'CLASS' in df.columns:
         df = df.rename(columns={'CLASS': 'class'})
 
-    if 'class' not in df.columns:
-        raise Exception("Dataset does not contains \"Class\" column.")
-
     return df
 
 
