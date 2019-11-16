@@ -25,7 +25,7 @@ class NeuralNetwork:
 
     def generate_random_weights(self):
         return np.array([
-            np.random.rand(input_num, layer_size + 1)
+            np.random.normal(loc=0, scale=1, size=(input_num, layer_size + 1))
             for layer_size, input_num
             in zip(self.layers, self.layers[1:])
         ])
