@@ -1,4 +1,6 @@
 import numpy as np
+import pandas as pd
+from src.mathematics import normalize
 
 
 def add_bias(instance):
@@ -15,3 +17,11 @@ def chunks(array, chunks_size):
         chunks.append(array[i * chunks_size: (i + 1) * chunks_size])
 
     return np.array(chunks)
+
+
+def normalize_dataset(dataset, target='class'):
+    data_without_target = dataset.drop([target], axis=1)
+    data_with_class = dataset['class'] \
+        .to_frame() \
+        .join(pd.DataFrame(normalize(data_without_target.values), columns=data_without_target.columns))
+    return data_with_class
