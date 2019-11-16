@@ -136,5 +136,31 @@ def get_args(arguments=None):
         action='count'
     )
 
+    # Train
+    parser_predict = subparsers.add_parser('predict', help='Neural Network Prediction')
+    parser_predict.add_argument(
+        "-d",
+        "--dataset_path",
+        type=str,
+        required=True,
+        help='Path to dataset file.'
+    )
+
+    parser_predict.add_argument(
+        "-m",
+        "--model_path",
+        type=str,
+        required=True,
+        help='Path to model file.'
+    )
+
+    parser_predict.add_argument(
+        "-r",
+        "--results_path",
+        type=str,
+        required=True,
+        help='Path to model file.'
+    )
+
     args = parser.parse_args(arguments)
     return args
