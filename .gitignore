@@ -11,3 +11,6 @@ __pycache__/
 
 #jupyter
 experimentation/
+
+#Models
+models
