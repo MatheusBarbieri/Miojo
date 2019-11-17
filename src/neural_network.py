@@ -138,18 +138,18 @@ class NeuralNetwork:
         expected_batches = chunks(expected, self.batch_size)
 
         for epoch in range(self.epochs):
-            loss_str = ''
+            cost_str = ''
             if self.show_loss:
                 predictions = self.predict(examples)
-                current_loss = self.loss(predictions, expected)
-                loss_str = f' [Current Loss {current_loss:0.3f}]'
-            print(f'Running Epoch {epoch + 1} of {self.epochs}{loss_str}', end='\r')
+                current_cost = self.cost(predictions, expected)
+                cost_str = f' [Current cost {current_cost:0.3f}]'
+            print(f'Running Epoch {epoch + 1} of {self.epochs}{cost_str}', end='\r')
             for batch_num, (examples_batch, expected_batch) in enumerate(zip(examples_batches, expected_batches)):
                 activations_batch = self._feedforward(examples_batch)
                 self._backpropagate(expected_batch, activations_batch)
         print('\nFinished training!')
 
-    def _loss_regularization(self, results):
+    def _cost_regularization(self, results):
         number_of_examples = len(results)
 
         regularization_acc = 0
@@ -158,9 +158,9 @@ class NeuralNetwork:
 
         return (self.regularization_factor / number_of_examples / 2 * regularization_acc)
 
-    def loss(self, results, expected, regularize=True):
+    def cost(self, results, expected, regularize=True):
         losses = log_loss(results, expected)
-        regularization = self._loss_regularization(results) if regularize else 0
+        regularization = self._cost_regularization(results) if regularize else 0
         return losses + regularization
 
     def save(self, path):

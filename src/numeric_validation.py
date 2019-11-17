@@ -45,14 +45,14 @@ class GradientNumericValidator(baseValidator):
                     new_neural_network_1 = deepcopy(self._neural_network)
                     new_neural_network_1.weights[layer_index][neuron_index][weight_index] += self._epsilon
                     results_plus_epsilon = [new_neural_network_1.predict(example) for example in self._example_batch]
-                    loss_plus_epsilon = new_neural_network_1.loss(results_plus_epsilon, self._expected_batch)
+                    cost_plus_epsilon = new_neural_network_1.cost(results_plus_epsilon, self._expected_batch)
 
                     new_neural_network_2 = deepcopy(self._neural_network)
                     new_neural_network_2.weights[layer_index][neuron_index][weight_index] -= self._epsilon
                     results_minus_epsilon = [new_neural_network_2.predict(example) for example in self._example_batch]
-                    loss_minus_epsilon = new_neural_network_2.loss(results_minus_epsilon, self._expected_batch)
+                    cost_minus_epsilon = new_neural_network_2.cost(results_minus_epsilon, self._expected_batch)
 
-                    resulting_gradient = (loss_plus_epsilon - loss_minus_epsilon) / (2 * self._epsilon)
+                    resulting_gradient = (cost_plus_epsilon - cost_minus_epsilon) / (2 * self._epsilon)
                     new_gradients[layer_index][neuron_index][weight_index] = resulting_gradient
 
         return new_gradients
