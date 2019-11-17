@@ -3,7 +3,13 @@ import pandas as pd
 from src.command_line import get_args
 from src.file_system import load_model_from_text, load_dataset_from_text, load_dataset
 from src.numeric_validation import BackpropagationValidator, GradientNumericValidator
-from src.util import normalize_dataset
+from src.util import (
+    normalize_dataset,
+    get_attributes,
+    attributes_and_target,
+    results_to_labels,
+    expected_to_neural_network
+)
 from src.neural_network import NeuralNetwork
 
 
@@ -24,9 +30,9 @@ def main():
     elif mode == 'train':
         data = load_dataset(args.dataset_path)
         normalized_data = normalize_dataset(data)
-        examples = normalized_data.drop(['class'], axis=1)
-        expected = pd.get_dummies(normalized_data['class'])
-        num_inputs = len(examples.columns)
+        attributes = get_attributes(normalized_data)
+        expected = expected_to_neural_network(normalized_data)
+        num_inputs = len(attributes.columns)
         num_outputs = len(expected.columns)
         layers = [num_inputs] + args.structure + [num_outputs]
 
@@ -38,20 +44,18 @@ def main():
             epochs=args.epochs,
             show_loss=verbose)
 
-        neural_network.train(examples.values, expected.values)
+        neural_network.train(attributes.values, expected.values)
         neural_network.save(args.output_path)
 
     elif mode == 'predict':
-        neural_network = NeuralNetwork.load(args.model_path)
         data = load_dataset(args.dataset_path)
         normalized_data = normalize_dataset(data)
+        attributes, expected, expected_columns = attributes_and_target(normalized_data)
 
-        result_columns = normalized_data['class'].unique()
-        data_attributes = normalized_data.drop(['class'], axis=1)
-        results = neural_network.predict(data_attributes.values)
+        neural_network = NeuralNetwork.load(args.model_path)
+        results = neural_network.predict(attributes.values)
 
-        results_labels = pd.DataFrame(results, columns=result_columns).idxmax(axis=1)
-        results_df = results_labels.to_frame(name='predicted').join(normalized_data['class'].to_frame(name='expected'))
+        results_df = results_to_labels(results, expected_columns).join(expected)
         results_df.to_csv(args.results_path, index=False)
 
 
