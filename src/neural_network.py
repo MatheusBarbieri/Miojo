@@ -10,6 +10,7 @@ class NeuralNetwork:
                  layers=[2, 4, 3, 2],
                  weights=None,
                  regularization_factor=0.25,
+                 momentum_factor=0.9,
                  learning_rate=0.1,
                  batch_size=32,
                  epochs=1,
@@ -18,6 +19,8 @@ class NeuralNetwork:
         self.num_layers = len(layers)
         self.weights = weights if weights is not None else self.generate_random_weights()
         self.regularization_factor = regularization_factor
+        self.momentum_factor = momentum_factor
+        self.velocity = 0
         self.learning_rate = learning_rate
         self.batch_size = batch_size
         self.epochs = epochs
@@ -97,12 +100,17 @@ class NeuralNetwork:
         regularized_mean_gradients = (gradients_batch.sum(0) + self._gradient_regularization()) / n
         return regularized_mean_gradients
 
-    def _update_weights(self, gradients):
-        self.weights = self.weights - self.learning_rate * gradients
+    def _update_weights(self, veolocity):
+        self.weights = self.weights - self.learning_rate * veolocity
+
+    def _velocity(self, gradients):
+        return self.momentum_factor * self.velocity + (1 - self.momentum_factor) * gradients
 
     def _backpropagate(self, expected_batch, activations_batch):
         regularized_mean_gradients = self._regularized_mean_gradients(expected_batch, activations_batch)
-        self._update_weights(regularized_mean_gradients)
+        velocity = self._velocity(regularized_mean_gradients)
+        self.velocity = velocity
+        self._update_weights(velocity)
 
     def train(self, examples, expected):
         total_examples = len(examples)
