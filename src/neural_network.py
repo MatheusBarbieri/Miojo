@@ -10,7 +10,8 @@ class NeuralNetwork:
                  layers=[2, 4, 3, 2],
                  weights=None,
                  regularization_factor=0.25,
-                 momentum_factor=0.9,
+                 beta_1=0.9,
+                 beta_2=0.999,
                  learning_rate=0.1,
                  batch_size=32,
                  epochs=1,
@@ -19,12 +20,16 @@ class NeuralNetwork:
         self.num_layers = len(layers)
         self.weights = weights if weights is not None else self.generate_random_weights()
         self.regularization_factor = regularization_factor
-        self.momentum_factor = momentum_factor
-        self.velocity = 0
+        self.beta_1 = beta_1
+        self.beta_2 = beta_2
         self.learning_rate = learning_rate
         self.batch_size = batch_size
         self.epochs = epochs
         self.show_loss = show_loss
+
+        self.velocity = 0
+        self.sgema = 0
+        self.atualization_count = 1
 
     def generate_random_weights(self):
         return np.array([
@@ -100,17 +105,28 @@ class NeuralNetwork:
         regularized_mean_gradients = (gradients_batch.sum(0) + self._gradient_regularization()) / n
         return regularized_mean_gradients
 
-    def _update_weights(self, veolocity):
-        self.weights = self.weights - self.learning_rate * veolocity
+    def _update_weights(self, velocity, sgema, epsilon=1e-15):
+        self.weights = self.weights - self.learning_rate / np.power(sgema + epsilon, 0.5) * velocity
 
     def _velocity(self, gradients):
-        return self.momentum_factor * self.velocity + (1 - self.momentum_factor) * gradients
+        return self.beta_1 * self.velocity + (1 - self.beta_1) * gradients
+
+    def _sgema(self, gradients):
+        return self.beta_2 * self.sgema + (1 - self.beta_2) * np.power(gradients, 2)
 
     def _backpropagate(self, expected_batch, activations_batch):
         regularized_mean_gradients = self._regularized_mean_gradients(expected_batch, activations_batch)
         velocity = self._velocity(regularized_mean_gradients)
+        sgema = self._sgema(regularized_mean_gradients)
+
+        unbiased_velocity = velocity / (1 - np.power(self.beta_1, self.atualization_count))
+        unbiased_sgema = sgema / (1 - self.beta_2, np.power(self.beta_2, self.atualization_count))
+
+        self.atualization_count += 1
         self.velocity = velocity
-        self._update_weights(velocity)
+        self.sgema = sgema
+
+        self._update_weights(unbiased_velocity, unbiased_sgema)
 
     def train(self, examples, expected):
         total_examples = len(examples)
@@ -124,7 +140,8 @@ class NeuralNetwork:
         for epoch in range(self.epochs):
             loss_str = ''
             if self.show_loss:
-                current_loss = self.loss(self.predict(examples), expected)
+                predictions = self.predict(examples)
+                current_loss = self.loss(predictions, expected)
                 loss_str = f' [Current Loss {current_loss:0.3f}]'
             print(f'Running Epoch {epoch + 1} of {self.epochs}{loss_str}', end='\r')
             for batch_num, (examples_batch, expected_batch) in enumerate(zip(examples_batches, expected_batches)):
