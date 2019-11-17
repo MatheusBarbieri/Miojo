@@ -41,6 +41,19 @@ def main():
         neural_network.train(examples.values, expected.values)
         neural_network.save(args.output_path)
 
+    elif mode == 'predict':
+        neural_network = NeuralNetwork.load(args.model_path)
+        data = load_dataset(args.dataset_path)
+        normalized_data = normalize_dataset(data)
+
+        result_columns = normalized_data['class'].unique()
+        data_attributes = normalized_data.drop(['class'], axis=1)
+        results = neural_network.predict(data_attributes.values)
+
+        results_df = pd.DataFrame(results, columns=result_columns)
+        results = results_df.idxmax(axis=1)
+        results.to_frame(name='results').to_csv(args.results_path, index=False)
+
 
 if __name__ == "__main__":
     main()

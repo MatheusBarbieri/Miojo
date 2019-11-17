@@ -162,5 +162,11 @@ def get_args(arguments=None):
         help='Path to model file.'
     )
 
+    parser_predict.add_argument(
+        '-v',
+        '--verbose',
+        action='count'
+    )
+
     args = parser.parse_args(arguments)
     return args
