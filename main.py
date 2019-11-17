@@ -50,9 +50,9 @@ def main():
         data_attributes = normalized_data.drop(['class'], axis=1)
         results = neural_network.predict(data_attributes.values)
 
-        results_df = pd.DataFrame(results, columns=result_columns)
-        results = results_df.idxmax(axis=1)
-        results.to_frame(name='results').to_csv(args.results_path, index=False)
+        results_labels = pd.DataFrame(results, columns=result_columns).idxmax(axis=1)
+        results_df = results_labels.to_frame(name='predicted').join(normalized_data['class'].to_frame(name='expected'))
+        results_df.to_csv(args.results_path, index=False)
 
 
 if __name__ == "__main__":
