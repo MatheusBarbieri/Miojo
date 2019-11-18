@@ -29,5 +29,6 @@ normalize_default_max = 1 - epsilon
 
 def normalize(examples, min_value=normalize_default_min, max_value=normalize_default_max):
     return np.array(
-        min_value + (examples - examples.min()) * (max_value - min_value) / (examples.max() - examples.min())
+        min_value + (examples - examples.min(axis=0))
+        * (max_value - min_value) / (examples.max(axis=0) - examples.min(axis=0))
     )
