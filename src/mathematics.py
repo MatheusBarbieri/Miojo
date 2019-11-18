@@ -15,7 +15,7 @@ def _log_loss(x, y):
         x = epsilon
     elif x == 1:
         x = 1 - epsilon
-    return -y * np.log(x) - (1 - y) * np.log(1 - x)
+    return -(y * np.log(x) + (1 - y) * np.log(1 - x))
 
 
 def log_loss(result, expected):
