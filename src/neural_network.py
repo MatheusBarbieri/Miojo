@@ -143,7 +143,7 @@ class NeuralNetwork:
                 predictions = self.predict(examples)
                 current_cost = self.cost(predictions, expected)
                 cost_str = f' [Current cost {current_cost:0.3f}]'
-            print(f'Running Epoch {epoch + 1} of {self.epochs}{cost_str}', end='\r')
+            print(f'Running Epoch {epoch + 1} of {self.epochs}{cost_str}{" "*10}', end='\r')
             for batch_num, (examples_batch, expected_batch) in enumerate(zip(examples_batches, expected_batches)):
                 activations_batch = self._feedforward(examples_batch)
                 self._backpropagate(expected_batch, activations_batch)
