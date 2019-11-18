@@ -120,7 +120,7 @@ class NeuralNetwork:
         sgema = self._sgema(regularized_mean_gradients)
 
         unbiased_velocity = velocity / (1 - np.power(self.beta_1, self.atualization_count))
-        unbiased_sgema = sgema / (1 - self.beta_2, np.power(self.beta_2, self.atualization_count))
+        unbiased_sgema = sgema / (1 - np.power(self.beta_2, self.atualization_count))
 
         self.atualization_count += 1
         self.velocity = velocity
