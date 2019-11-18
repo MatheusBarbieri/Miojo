@@ -116,7 +116,7 @@ def add_epochs(parser):
         "--epochs",
         type=int,
         default=100,
-        help='Size of minibatches used.'
+        help='Number of epochs used to train.'
     )
 
 
