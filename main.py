@@ -90,7 +90,6 @@ def main():
             test_results = neural_network.predict(test_attributes.values)
             results = results_to_labels(test_results, test_columns).join(test_expected)
             all_results.append(results)
-            break
 
         confusion_matrix = ConfusionMatrix(pd.concat(all_results))
         confusion_matrix.show()
