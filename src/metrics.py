@@ -3,11 +3,29 @@ import numpy as np
 
 
 class ConfusionMatrix:
-    def __init__(self, results):
+    def __init__(self, results, predicted_col='predicted', expected_col='expected'):
+        predicted = results[predicted_col]
+        expected = results[expected_col]
+
         self._results = results
         self._total = len(results)
-        self._correct = len(results[results['predicted'] == results['class']])
-        self._cm = pd.crosstab(results['class'], results['predicted'], rownames=['actual'])
+        self._correct = len(results[predicted == expected])
+        self._cm = self._create_confusion_matrix(predicted, expected)
+
+    def _create_confusion_matrix(self, expected, predicted):
+        labels = np.sort(np.unique(np.append(predicted.unique(), expected.unique())))
+        num_labels = len(labels)
+        labels_index = {label: idx for idx, label in enumerate(labels)}
+        new_matrix = np.zeros(shape=(num_labels, num_labels))
+
+        for exp, pred in zip(expected, predicted):
+            new_matrix[labels_index[exp]][labels_index[pred]] += 1
+
+        return pd.DataFrame(
+            new_matrix,
+            index=labels,
+            columns=labels
+        )
 
     def __add__(self, val):
         new_results = pd.concat([self._results, val.results])
@@ -96,6 +114,9 @@ class ConfusionMatrix:
         return f_measure
 
     def show(self, verbose=False):
+        if verbose:
+            print("-"*50)
+            print(self)
         print("-"*50)
         print(f"Accuracy: {self.accuracy():.3f} [Total: {self._total}, Correct: {self._correct}]")
         print(f"Macro Recall: {self.macro_recall():.3f}")
