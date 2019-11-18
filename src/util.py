@@ -28,15 +28,14 @@ def normalize_dataset(dataset, target='class'):
 
 
 def get_attributes(data):
-    columns_names = data['class'].unique()
     attributes = data.drop(['class'], axis=1)
-    return attributes, columns_names
+    return attributes
 
 
 def attributes_and_target(data):
-    columns_names = data['class'].unique()
+    columns_names = np.sort(data['class'].unique())
     expected = data['class'].to_frame(name='expected')
-    attributes = data.drop(['class'], axis=1)
+    attributes = get_attributes(data)
     return attributes, expected, columns_names
 
 
@@ -45,5 +44,14 @@ def results_to_labels(results, labels):
     return results_with_labels.to_frame(name='predicted')
 
 
-def expected_to_neural_network(data):
-    return pd.get_dummies(data['class'])
+def expected_to_neural_network(data, target_column='expected'):
+    encoded = pd.get_dummies(data[target_column])
+    encoded = encoded.reindex(np.sort(encoded.columns), axis=1)
+    return encoded
+
+
+def generate_structure(attributes, expected, hidden_layers):
+    num_inputs = len(attributes.columns)
+    num_outputs = len(expected.columns)
+    layers = [num_inputs] + hidden_layers + [num_outputs]
+    return layers
