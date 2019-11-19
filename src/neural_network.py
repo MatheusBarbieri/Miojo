@@ -15,7 +15,7 @@ class NeuralNetwork:
                  learning_rate=0.1,
                  batch_size=32,
                  epochs=1,
-                 show_loss=False):
+                 show_cost=False):
         self._layers = np.array(layers)
         self._num_layers = len(layers)
         self._weights = weights if weights is not None else self.generate_random_weights()
@@ -25,11 +25,11 @@ class NeuralNetwork:
         self._learning_rate = learning_rate
         self._batch_size = batch_size
         self._epochs = epochs
-        self._show_loss = show_loss
+        self._show_cost = show_cost
 
-        self.velocity = 0
-        self.sgema = 0
-        self.atualization_count = 1
+        self._current_velocity = 0
+        self._current_sgema = 0
+        self._atualization_count = 1
 
     def generate_random_weights(self):
         return np.array([
@@ -109,22 +109,22 @@ class NeuralNetwork:
         self._weights = self._weights - self._learning_rate / np.power(sgema + epsilon, 0.5) * velocity
 
     def _velocity(self, gradients):
-        return self._beta_1 * self.velocity + (1 - self._beta_1) * gradients
+        return self._beta_1 * self._current_velocity + (1 - self._beta_1) * gradients
 
     def _sgema(self, gradients):
-        return self._beta_2 * self.sgema + (1 - self._beta_2) * np.power(gradients, 2)
+        return self._beta_2 * self._current_sgema + (1 - self._beta_2) * np.power(gradients, 2)
 
     def _backpropagate(self, expected_batch, activations_batch):
         regularized_mean_gradients = self._regularized_mean_gradients(expected_batch, activations_batch)
         velocity = self._velocity(regularized_mean_gradients)
         sgema = self._sgema(regularized_mean_gradients)
 
-        unbiased_velocity = velocity / (1 - np.power(self._beta_1, self.atualization_count))
-        unbiased_sgema = sgema / (1 - np.power(self._beta_2, self.atualization_count))
+        unbiased_velocity = velocity / (1 - np.power(self._beta_1, self._atualization_count))
+        unbiased_sgema = sgema / (1 - np.power(self._beta_2, self._atualization_count))
 
-        self.atualization_count += 1
-        self.velocity = velocity
-        self.sgema = sgema
+        self._atualization_count += 1
+        self._current_velocity = velocity
+        self._current_sgema = sgema
 
         self._update_weights(unbiased_velocity, unbiased_sgema)
 
@@ -139,9 +139,8 @@ class NeuralNetwork:
 
         for epoch in range(self._epochs):
             cost_str = ''
-            if self._show_loss:
-                predictions = self.predict(examples)
-                current_cost = self.cost(predictions, expected)
+            if self._show_cost:
+                current_cost = self.cost_from_examples(examples, expected)
                 cost_str = f' [Current cost {current_cost:0.3f}]'
             print(f'Running Epoch {epoch + 1} of {self._epochs}{cost_str}{" "*10}', end='\r')
             for batch_num, (examples_batch, expected_batch) in enumerate(zip(examples_batches, expected_batches)):
@@ -158,16 +157,32 @@ class NeuralNetwork:
 
         return (self._regularization_factor / number_of_examples / 2 * regularization_acc)
 
+    def cost_from_examples(self, examples, expected, regularize=True):
+        predictions = self.predict(examples)
+        return self.cost(predictions, expected, regularize)
+
     def cost(self, results, expected, regularize=True):
         losses = log_loss(results, expected)
         regularization = self._cost_regularization(results) if regularize else 0
         return losses + regularization
 
     def save(self, path):
+        dir_path = os.path.dirname(path)
+        if not os.path.exists(dir_path):
+            try:
+                os.makedirs(dir_path)
+            except Exception as e:
+                print(f'Could not create {dir_path} path to save model.')
+                raise e
+
         with open(path, 'wb+') as f:
             pickle.dump(self, f)
 
     @classmethod
     def load(cls, path):
         with open(path, 'rb') as f:
-            return pickle.load(f)
+            try:
+                return pickle.load(f)
+            except Exception as e:
+                print(f'Cold not open {path}')
+                raise e

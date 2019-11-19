@@ -22,7 +22,7 @@ def execute(args):
         learning_rate=args.learning_rate,
         batch_size=args.batch_size,
         epochs=args.epochs,
-        show_loss=args.verbose)
+        show_cost=args.verbose)
 
     neural_network.train(attributes.values, expected.values)
     neural_network.save(args.output_path)
