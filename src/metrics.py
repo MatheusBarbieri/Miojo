@@ -113,26 +113,31 @@ class ConfusionMatrix:
         f_measure = ((1 + b**2) * prec * rec / (b**2 * prec + rec))
         return f_measure
 
-    def show(self, verbose=False):
+    def string_stats(self, verbose=False):
+        string = ''
         if verbose:
-            print("-"*50)
-            print(self)
-        print("-"*50)
-        print(f"Accuracy: {self.accuracy():.3f} [Total: {self._total}, Correct: {self._correct}]")
-        print(f"Macro Recall: {self.macro_recall():.3f}")
+            string += f"{'-'*50}\n{self}\n"
+        string += f"{'-'*50}\n"
+        string += f"Accuracy: {self.accuracy():.3f} [Total: {self._total}, Correct: {self._correct}]\n"
+        string += f"Macro Recall: {self.macro_recall():.3f}\n"
+
         if verbose:
             for k, v in self.recalls().items():
-                print(f"  Recall for class {k}: {v:.3f}")
-        print(f"Macro Precision: {self.macro_precision():.3f}")
+                string += f"  Recall for class {k}: {v:.3f}\n"
+        string += f"Macro Precision: {self.macro_precision():.3f}\n"
         if verbose:
             for k, v in self.precisions().items():
-                print(f"  Precision for class {k}: {v:.3f}")
-        print(f"Macro Specificity: {self.macro_specificity():.3f}")
+                string += f"  Precision for class {k}: {v:.3f}\n"
+        string += f"Macro Specificity: {self.macro_specificity():.3f}\n"
         if verbose:
             for k, v in self.specificities().items():
-                print(f"  Specificity for class {k}: {v:.3f}")
+                string += f"  Specificity for class {k}: {v:.3f}\n"
         for b in [2, 1, 0.5]:
-            print(f"Macro F-measure (ß = {b}): {self.macro_f_measure(b):.3f}")
+            string += f"Macro F-measure (ß = {b}): {self.macro_f_measure(b):.3f}\n"
             if verbose:
                 for k, v in self.f_measures(b).items():
-                    print(f"  F-measure (ß = {b}) for class {k}: {v:.3f}")
+                    string += f"  F-measure (ß = {b}) for class {k}: {v:.3f}\n"
+        return string
+
+    def show(self, verbose=False):
+        print(self.string_stats(verbose))
