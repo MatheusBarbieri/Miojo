@@ -45,7 +45,7 @@ def add_output_path(parser):
         "--output_path",
         type=str,
         required=True,
-        help='Path to where trained model weights file is gonna be output.'
+        help='Path to where trained model/weights file is gonna be output.'
     )
 
 
@@ -54,8 +54,8 @@ def add_outputs_path(parser):
         "-o",
         "--outputs_path",
         type=str,
-        required=True,
-        help='Path to where validation results and metrics are gonna be saved.'
+        default='results',
+        help='Path to folder where results, metrics and stats are gonna be saved.'
     )
 
 
@@ -181,7 +181,7 @@ def get_args(arguments=None):
     add_verbosity(parser_predict)
 
     # Evaluate Model
-    parser_evaluate_model = subparsers.add_parser('evaluate-model', help='Neural Network Evaluation')
+    parser_evaluate_model = subparsers.add_parser('evaluate-model', help='Model performance evaluation')
     add_dataset_path(parser_evaluate_model)
     add_structure(parser_evaluate_model)
     add_learning_rate(parser_evaluate_model)
@@ -190,6 +190,17 @@ def get_args(arguments=None):
     add_batch_size(parser_evaluate_model)
     add_k_folds(parser_evaluate_model)
     add_verbosity(parser_evaluate_model)
+
+    # Evaluate Model Cost
+    parser_evaluate_cost = subparsers.add_parser('evaluate-cost', help='Model cost evaluation')
+    add_dataset_path(parser_evaluate_cost)
+    add_outputs_path(parser_evaluate_cost)
+    add_structure(parser_evaluate_cost)
+    add_learning_rate(parser_evaluate_cost)
+    add_regularization(parser_evaluate_cost)
+    add_epochs(parser_evaluate_cost)
+    add_batch_size(parser_evaluate_cost)
+    add_verbosity(parser_evaluate_cost)
 
     args = parser.parse_args(arguments)
     return args
