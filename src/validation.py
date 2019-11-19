@@ -2,6 +2,7 @@ from copy import deepcopy
 
 import numpy as np
 
+from src.file_system import load_model_from_text, load_dataset_from_text
 from src.neural_network import NeuralNetwork
 
 
@@ -99,3 +100,12 @@ class BackpropagationValidator(baseValidator):
             print('{:=^80}'.format(' Gradients from Backpropagation '))
         all_gradients = self._neural_network_gradients()
         self.print_structure(all_gradients)
+
+
+def execute(args):
+    neural_network = load_model_from_text(args.network_path, args.weights_path)
+    examples, test_results = load_dataset_from_text(args.dataset_path)
+
+    ValidatorClass = GradientNumericValidator if args.mode == 'gradient' else BackpropagationValidator
+    validator = ValidatorClass(neural_network, examples, test_results)
+    validator.show(verbose=args.verbose)
