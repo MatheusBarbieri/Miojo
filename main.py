@@ -3,7 +3,7 @@ from src.file_system import load_model_from_text, load_dataset_from_text
 from src.numeric_validation import BackpropagationValidator, GradientNumericValidator
 from src import train
 from src import predict
-from src import validate
+from src import evaluate
 
 
 def main():
@@ -26,8 +26,8 @@ def main():
     elif mode == 'predict':
         predict.execute(args)
 
-    elif mode == 'validate':
-        validate.execute(args)
+    elif mode == 'evaluate':
+        evaluate.execute(args)
 
 
 if __name__ == "__main__":
