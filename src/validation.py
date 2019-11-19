@@ -37,19 +37,19 @@ class GradientNumericValidator(baseValidator):
         self.numeric_gradients = self._numeric_gradients()
 
     def _numeric_gradients(self):
-        new_gradients = [np.zeros(w.shape) for w in self._neural_network.weights]
+        new_gradients = [np.zeros(w.shape) for w in self._neural_network._weights]
 
-        for layer_index, layer_weights in enumerate(self._neural_network.weights):
+        for layer_index, layer_weights in enumerate(self._neural_network._weights):
             for neuron_index, neuron_weights in enumerate(layer_weights):
                 for weight_index, weight in enumerate(neuron_weights):
 
                     new_neural_network_1 = deepcopy(self._neural_network)
-                    new_neural_network_1.weights[layer_index][neuron_index][weight_index] += self._epsilon
+                    new_neural_network_1._weights[layer_index][neuron_index][weight_index] += self._epsilon
                     results_plus_epsilon = new_neural_network_1.predict(self._example_batch)
                     cost_plus_epsilon = new_neural_network_1.cost(results_plus_epsilon, self._expected_batch)
 
                     new_neural_network_2 = deepcopy(self._neural_network)
-                    new_neural_network_2.weights[layer_index][neuron_index][weight_index] -= self._epsilon
+                    new_neural_network_2._weights[layer_index][neuron_index][weight_index] -= self._epsilon
                     results_minus_epsilon = new_neural_network_2.predict(self._example_batch)
                     cost_minus_epsilon = new_neural_network_2.cost(results_minus_epsilon, self._expected_batch)
 
@@ -90,9 +90,9 @@ class BackpropagationValidator(baseValidator):
     def show(self, verbose=0):
         if verbose:
             print('{:=^80}'.format(' Weights '))
-            self.print_structure(self._neural_network.weights)
+            self.print_structure(self._neural_network._weights)
             print('{:=^80}'.format(' Regularization '))
-            print(self._neural_network.regularization_factor)
+            print(self._neural_network._regularization_factor)
             print('{:=^80}'.format(' Inputs '))
             print(self._example_batch)
             print('{:=^80}'.format(' Expected Results '))
