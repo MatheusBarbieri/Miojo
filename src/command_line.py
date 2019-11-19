@@ -180,17 +180,16 @@ def get_args(arguments=None):
     add_batch_size(parser_predict)
     add_verbosity(parser_predict)
 
-    # Evaluate
-    parser_evaluate = subparsers.add_parser('evaluate', help='Neural Network Evaluation')
-    add_dataset_path(parser_evaluate)
-    add_outputs_path(parser_evaluate)
-    add_structure(parser_evaluate)
-    add_learning_rate(parser_evaluate)
-    add_regularization(parser_evaluate)
-    add_epochs(parser_evaluate)
-    add_batch_size(parser_evaluate)
-    add_k_folds(parser_evaluate)
-    add_verbosity(parser_evaluate)
+    # Evaluate Model
+    parser_evaluate_model = subparsers.add_parser('evaluate-model', help='Neural Network Evaluation')
+    add_dataset_path(parser_evaluate_model)
+    add_structure(parser_evaluate_model)
+    add_learning_rate(parser_evaluate_model)
+    add_regularization(parser_evaluate_model)
+    add_epochs(parser_evaluate_model)
+    add_batch_size(parser_evaluate_model)
+    add_k_folds(parser_evaluate_model)
+    add_verbosity(parser_evaluate_model)
 
     args = parser.parse_args(arguments)
     return args

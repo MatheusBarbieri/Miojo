@@ -2,7 +2,7 @@ from src.command_line import get_args
 from src import validation
 from src import train
 from src import predict
-from src import evaluate
+from src import evaluate_model
 
 
 def main():
@@ -18,8 +18,8 @@ def main():
     elif mode == 'predict':
         predict.execute(args)
 
-    elif mode == 'evaluate':
-        evaluate.execute(args)
+    elif mode == 'evaluate-model':
+        evaluate_model.execute(args)
 
 
 if __name__ == "__main__":
