@@ -3,6 +3,7 @@ from src import validation
 from src import train
 from src import predict
 from src import evaluate_model
+from src import evaluate_cost
 
 
 def main():
@@ -20,6 +21,9 @@ def main():
 
     elif mode == 'evaluate-model':
         evaluate_model.execute(args)
+
+    elif mode == 'evaluate-cost':
+        evaluate_cost.execute(args)
 
 
 if __name__ == "__main__":
