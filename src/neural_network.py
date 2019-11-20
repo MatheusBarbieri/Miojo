@@ -33,11 +33,12 @@ class NeuralNetwork:
         self._atualization_count = 1
 
     def generate_random_weights(self):
-        return np.array([
-            np.random.normal(loc=0, scale=1, size=(input_num, layer_size + 1))
-            for layer_size, input_num
-            in zip(self._layers, self._layers[1:])
-        ])
+        number_of_layers = len(self._layers)
+        weights = np.empty((number_of_layers - 1,), dtype=object)
+
+        for index, (layer_size, input_num) in enumerate(zip(self._layers, self._layers[1:])):
+            weights[index] = np.random.normal(loc=0, scale=1, size=(input_num, layer_size + 1))
+        return weights
 
     def predict(self, inputs):
         all_results = []
