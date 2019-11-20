@@ -33,9 +33,7 @@ class NeuralNetwork:
         self._atualization_count = 1
 
     def generate_random_weights(self):
-        number_of_layers = len(self._layers)
-        weights = np.empty((number_of_layers - 1,), dtype=object)
-
+        weights = np.empty((self._num_layers - 1,), dtype=object)
         for index, (layer_size, input_num) in enumerate(zip(self._layers, self._layers[1:])):
             weights[index] = np.random.normal(loc=0, scale=1, size=(input_num, layer_size + 1))
         return weights
@@ -82,19 +80,22 @@ class NeuralNetwork:
 
     def _gradients(self, expected, activations):
         deltas = self._deltas(expected, activations)
-        return np.array([
-            self._layer_gradients(layer_deltas, layer_activations)
-            for layer_deltas, layer_activations
-            in zip(deltas, activations)
-        ])
+        gradients = np.empty((self._num_layers - 1,), dtype=object)
+
+        for index, (layer_deltas, layer_activations) in enumerate(zip(deltas, activations)):
+            gradients[index] = self._layer_gradients(layer_deltas, layer_activations)
+
+        return gradients
 
     def _gradient_regularization(self):
-        regularizations = []
-        for weights in self._weights:
+        regularizations = np.empty((self._num_layers - 1,), dtype=object)
+
+        for index, weights in enumerate(self._weights):
             regularization = np.zeros(weights.shape)
             regularization[:, 1:] = self._regularization_factor * weights[:, 1:]
-            regularizations.append(regularization)
-        return np.array(regularizations)
+            regularizations[index] = regularization
+
+        return regularizations
 
     def _regularized_mean_gradients(self, expected_batch, activations_batch):
         gradients_batch = np.array([
@@ -152,7 +153,7 @@ class NeuralNetwork:
                 self._backpropagate(expected_batch, activations_batch)
 
             if self._verbosity > 0:
-                print(f'Finished training!')
+                print(f'\nFinished training!')
 
     def _cost_regularization(self, results):
         number_of_examples = len(results)
