@@ -95,7 +95,8 @@ class ParametersEvaluationRunner:
 
         all_results = []
         total_loss = 0
-        for train_data, test_data in splits:
+        for index, (train_data, test_data) in enumerate(splits):
+            print(f'>>> Running for split {index + 1} of {self._k_folds}')
             train_attributes, train_expected, train_columns = attributes_and_target(train_data)
             test_attributes, test_expected, test_columns = attributes_and_target(test_data)
 
@@ -108,7 +109,8 @@ class ParametersEvaluationRunner:
                 regularization_factor=regularization,
                 learning_rate=learning_rate,
                 batch_size=batch_size,
-                epochs=epoch
+                epochs=epoch,
+                verbosity=1
             )
 
             neural_network.train(train_attributes.values, train_expected.values)
@@ -143,12 +145,11 @@ class ParametersEvaluationRunner:
         print(f'Execution {execution_count} of {self._total_executions}. [{dataset_name}][{turn + 1} run]')
         print((
             f'Time spent: {total_time:0.2f} seconds. ({average_train_time:0.2f} '
-            f'seconds per train-set [k-folds: {self._k_folds}])'))
+            f'seconds per train-set)'))
         print((
             f'\tEpochs: {epoch}\n\tBatch Size: {batch_size}\n\tLearning Rate: {learning_rate}\n\t'
             f'Regularization: {regularization}\n\tLayers: {layers}\n\tSystem Loss: {mean_loss}'))
         confusion_matrix.show()
-        print('-'*50)
 
     def save(self, confusion_matrix, data_path,
              layers, mean_loss,
