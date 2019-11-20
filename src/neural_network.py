@@ -16,7 +16,7 @@ class NeuralNetwork:
                  learning_rate=0.1,
                  batch_size=32,
                  epochs=1,
-                 show_cost=False):
+                 verbosity=0):
         self._layers = np.array(layers)
         self._num_layers = len(layers)
         self._weights = weights if weights is not None else self.generate_random_weights()
@@ -26,7 +26,7 @@ class NeuralNetwork:
         self._learning_rate = learning_rate
         self._batch_size = batch_size
         self._epochs = epochs
-        self._show_cost = show_cost
+        self._verbosity = verbosity
 
         self._current_velocity = 0
         self._current_sgema = 0
@@ -140,15 +140,19 @@ class NeuralNetwork:
         expected_batches = chunks(expected, self._batch_size)
 
         for epoch in range(self._epochs):
-            cost_str = ''
-            if self._show_cost:
-                current_cost = self.cost_from_examples(examples, expected)
-                cost_str = f' [Current cost {current_cost:0.3f}]'
-            print(f'Running Epoch {epoch + 1} of {self._epochs}{cost_str}{" "*10}', end='\r')
+            if self._verbosity > 0:
+                cost_str = ''
+                if self._verbosity > 1:
+                    current_cost = self.cost_from_examples(examples, expected)
+                    cost_str = f' [Current cost {current_cost:0.3f}]'
+                print(f'Running Epoch {epoch + 1} of {self._epochs}{cost_str}{" "*10}', end='\r')
+
             for batch_num, (examples_batch, expected_batch) in enumerate(zip(examples_batches, expected_batches)):
                 activations_batch = self._feedforward(examples_batch)
                 self._backpropagate(expected_batch, activations_batch)
-        print('\nFinished training!')
+
+            if self._verbosity > 0:
+                print(f'Finished training!')
 
     def _cost_regularization(self, results):
         number_of_examples = len(results)

@@ -35,7 +35,7 @@ def execute(args):
             learning_rate=args.learning_rate,
             batch_size=args.batch_size,
             epochs=args.epochs,
-            show_cost=args.verbose
+            verbosity=args.verbose
         )
 
         neural_network.train(train_attributes.values, train_expected.values)

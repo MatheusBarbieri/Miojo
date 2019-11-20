@@ -22,11 +22,11 @@ class CostEvaluationNeuralNetwork(NeuralNetwork):
                  learning_rate=0.1,
                  batch_size=32,
                  epochs=1,
-                 show_cost=False,
+                 verbosity=False,
                  basepath='results/cost/',
                  filename='cost.csv'):
         super().__init__(layers, weights, regularization_factor, beta_1, beta_2,
-                         learning_rate, batch_size, epochs, show_cost)
+                         learning_rate, batch_size, epochs, verbosity)
 
         self._basepath = basepath
         self._filename = filename
@@ -98,7 +98,7 @@ def execute(args):
         learning_rate=args.learning_rate,
         batch_size=args.batch_size,
         epochs=args.epochs,
-        show_cost=args.verbose,
+        verbosity=args.verbose,
         basepath=args.outputs_path,
         filename=filename
     )

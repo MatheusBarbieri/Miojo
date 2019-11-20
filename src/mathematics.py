@@ -23,16 +23,12 @@ def log_loss(result, expected):
     return all_loss.mean()
 
 
-normalize_default_min = epsilon
-normalize_default_max = 1 - epsilon
+def normalize(examples):
+    max_value = examples.max(axis=0)
+    min_value = examples.min(axis=0)
 
-
-def normalize(examples, min_value=normalize_default_min, max_value=normalize_default_max):
-    max_v = examples.max(axis=0)
-    min_v = examples.min(axis=0)
-
-    examples_min = examples - min_v
-    max_min = max_v - min_v
+    examples_min = examples - min_value
+    max_min = max_value - min_value
 
     return np.array(
         np.divide(examples_min, max_min, out=np.zeros_like(examples_min), where=(max_min != 0))
