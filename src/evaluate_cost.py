@@ -69,7 +69,7 @@ class CostEvaluationNeuralNetwork(NeuralNetwork):
         for epoch in range(self._epochs):
             for batch_num, (examples_batch, expected_batch) in enumerate(zip(examples_batches, expected_batches)):
                 current_cost = self.cost_from_examples(examples, expected)
-                cost_str = f' [Current cost {current_cost:0.3f}{" "*20}]'
+                cost_str = f' [Current cost {current_cost:0.3f}]{" "*20}'
                 print(f'Running Epoch {epoch + 1} of {self._epochs}{cost_str}', end='\r')
 
                 activations_batch = self._feedforward(examples_batch)
