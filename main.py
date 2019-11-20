@@ -4,6 +4,7 @@ from src import train
 from src import predict
 from src import evaluate_model
 from src import evaluate_cost
+from src.evaluate_parameters import ParametersEvaluationRunner
 
 
 def main():
@@ -24,6 +25,9 @@ def main():
 
     elif mode == 'evaluate-cost':
         evaluate_cost.execute(args)
+
+    elif mode == 'evaluate-parameters':
+        ParametersEvaluationRunner(args).execute()
 
 
 if __name__ == "__main__":

@@ -140,6 +140,17 @@ def add_k_folds(parser):
     )
 
 
+def add_datasets_paths(parser):
+    parser.add_argument(
+        "-d",
+        "--datasets_paths",
+        nargs='+',
+        type=str,
+        required=True,
+        help='List of paths of datasets that are gonna be evaluated'
+    )
+
+
 def get_args(arguments=None):
     parser = argparse.ArgumentParser(description='NeuralNetwork')
     help_str = 'Working mode, can be one of [backpropagation, gradient, train]'
@@ -201,6 +212,15 @@ def get_args(arguments=None):
     add_epochs(parser_evaluate_cost)
     add_batch_size(parser_evaluate_cost)
     add_verbosity(parser_evaluate_cost)
+
+    # Evaluate Parameters
+    parser_evaluate_parameters = subparsers.add_parser(
+        'evaluate-parameters',
+        help='Evaluate and generate statistics for different parameter configurations for the given datasets'
+    )
+    add_datasets_paths(parser_evaluate_parameters)
+    add_outputs_path(parser_evaluate_parameters)
+    add_k_folds(parser_evaluate_parameters)
 
     args = parser.parse_args(arguments)
     return args
