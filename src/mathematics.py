@@ -28,7 +28,12 @@ normalize_default_max = 1 - epsilon
 
 
 def normalize(examples, min_value=normalize_default_min, max_value=normalize_default_max):
+    max_v = examples.max(axis=0)
+    min_v = examples.min(axis=0)
+
+    examples_min = examples - min_v
+    max_min = max_v - min_v
+
     return np.array(
-        min_value + (examples - examples.min(axis=0))
-        * (max_value - min_value) / (examples.max(axis=0) - examples.min(axis=0))
+        np.divide(examples_min, max_min, out=np.zeros_like(examples_min), where=(max_min != 0))
     )
