@@ -128,15 +128,16 @@ class ConfusionMatrix:
         if verbose:
             for k, v in self.precisions().items():
                 string += f"  Precision for class {k}: {v:.3f}\n"
-        string += f"Macro Specificity: {self.macro_specificity():.3f}\n"
+        string += f"Macro Specificity: {self.macro_specificity():.3f}"
         if verbose:
             for k, v in self.specificities().items():
-                string += f"  Specificity for class {k}: {v:.3f}\n"
+                string += f"\n  Specificity for class {k}: {v:.3f}"
         for b in [2, 1, 0.5]:
-            string += f"Macro F-measure (ß = {b}): {self.macro_f_measure(b):.3f}\n"
+            string += f"\nMacro F-measure (ß = {b}): {self.macro_f_measure(b):.3f}"
             if verbose:
                 for k, v in self.f_measures(b).items():
-                    string += f"  F-measure (ß = {b}) for class {k}: {v:.3f}\n"
+                    string += f"\n  F-measure (ß = {b}) for class {k}: {v:.3f}"
+        string += f"\n{'-'*50}"
         return string
 
     def show(self, verbose=False):
