@@ -19,13 +19,13 @@ class ParametersEvaluationRunner:
     def __init__(self,
                  args,
                  hidden_layers_formats=[
-                     [5],
+                     [3],
                      [10],
                      [100],
-                     [5, 5],
+                     [3, 3],
                      [10, 10],
                      [50, 50],
-                     [5, 5, 5],
+                     [3, 3, 3],
                      [10, 10, 10],
                      [50, 50, 50],
                      [10, 10, 10, 10]
