@@ -16,4 +16,5 @@ def execute(args):
     test_results = neural_network.predict(attributes.values)
 
     results_df = results_to_labels(test_results, expected_columns).join(expected)
+    print(f'Prediction finished, saving results to {args.results_path}')
     results_df.to_csv(args.results_path, index=False)

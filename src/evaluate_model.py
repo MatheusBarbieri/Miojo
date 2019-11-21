@@ -21,7 +21,8 @@ def execute(args):
     splits = k_folds.split_generator()
 
     all_results = []
-    for train_data, test_data in splits:
+    for index, (train_data, test_data) in enumerate(splits):
+        print(f'>>> Running for split {index + 1} of {args.k_folds}')
         train_attributes, train_expected, train_columns = attributes_and_target(train_data)
         test_attributes, test_expected, test_columns = attributes_and_target(test_data)
 
@@ -42,6 +43,7 @@ def execute(args):
         test_results = neural_network.predict(test_attributes.values)
         results = results_to_labels(test_results, test_columns).join(test_expected)
         all_results.append(results)
+        print()
 
     confusion_matrix = ConfusionMatrix(pd.concat(all_results))
     confusion_matrix.show()

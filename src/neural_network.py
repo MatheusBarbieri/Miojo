@@ -152,9 +152,6 @@ class NeuralNetwork:
                 activations_batch = self._feedforward(examples_batch)
                 self._backpropagate(expected_batch, activations_batch)
 
-            if self._verbosity > 0:
-                print(f'\nFinished training!')
-
     def _cost_regularization(self, results):
         number_of_examples = len(results)
 
