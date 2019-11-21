@@ -29,6 +29,7 @@ class NeuralNetwork:
         self._learning_rate = learning_rate
         self._batch_size = batch_size
         self._epochs = epochs
+        self._ran_epochs = epochs
         self._verbosity = verbosity
 
         self._stop_by_cost = stop_by_cost
@@ -167,6 +168,7 @@ class NeuralNetwork:
                         f'{self._iter_without_change} iterations [{current_cost:0.3f}].',
                         'Finished Training.'
                         )
+                    self._ran_epochs = epoch
                     break
             if self._verbosity > 0:
                 cost_str = f' [Current cost {current_cost:0.5f}]'
