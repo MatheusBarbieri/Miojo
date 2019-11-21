@@ -34,7 +34,7 @@ class ParametersEvaluationRunner:
                  learning_rates=[0.5, 0.25, 0.1, 0.01, 0.001],
                  batch_sizes=[1, 16, 32, 1000],
                  epochs=[1, 10, 50, 100, 300],
-                 turns=3):
+                 turns=1):
         self._datasets_paths = args.datasets_paths
         self._outputs_path = args.outputs_path
         self._k_folds = args.k_folds
