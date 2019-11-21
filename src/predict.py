@@ -1,20 +1,27 @@
+import os
+import pandas as pd
+
 from src.file_system import load_dataset
 from src.neural_network import NeuralNetwork
-from src.util import (
-    attributes_and_target,
-    normalize_dataset,
-    results_to_labels
-)
+from src.mathematics import normalize
 
 
 def execute(args):
     data = load_dataset(args.dataset_path)
-    normalized_data = normalize_dataset(data)
-    attributes, expected, expected_columns = attributes_and_target(normalized_data)
+    normalized_data = normalize(data.values)
 
     neural_network = NeuralNetwork.load(args.model_path)
-    test_results = neural_network.predict(attributes.values)
+    results = neural_network.predict(normalized_data)
 
-    results_df = results_to_labels(test_results, expected_columns).join(expected)
     print(f'Prediction finished, saving results to {args.results_path}')
+
+    dirname = os.path.basename(args.results_path)
+    if not os.path.exists(dirname):
+        try:
+            os.makedirs(dirname)
+        except Exception as e:
+            print(f'Could not create {dirname} path to save model.')
+            raise e
+
+    results_df = pd.DataFrame(results)
     results_df.to_csv(args.results_path, index=False)
