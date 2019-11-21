@@ -185,10 +185,8 @@ def get_args(arguments=None):
     # Predict
     parser_predict = subparsers.add_parser('predict', help='Neural Network Prediction')
     add_dataset_path(parser_predict)
-    add_epochs(parser_predict)
     add_model_path(parser_predict)
     add_results_path(parser_predict)
-    add_batch_size(parser_predict)
     add_verbosity(parser_predict)
 
     # Evaluate Model
