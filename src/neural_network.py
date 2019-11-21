@@ -16,7 +16,10 @@ class NeuralNetwork:
                  learning_rate=0.1,
                  batch_size=32,
                  epochs=1,
-                 verbosity=0):
+                 verbosity=0,
+                 stop_by_cost=True,
+                 cost_change_limit=0.001,
+                 iter_without_change=10):
         self._layers = np.array(layers)
         self._num_layers = len(layers)
         self._weights = weights if weights is not None else self.generate_random_weights()
@@ -27,6 +30,12 @@ class NeuralNetwork:
         self._batch_size = batch_size
         self._epochs = epochs
         self._verbosity = verbosity
+
+        self._stop_by_cost = stop_by_cost
+        self._cost_change_limit = cost_change_limit
+        self._iter_without_change = iter_without_change
+        self._current_cost = 1000
+        self._stuck_count = 0
 
         self._current_velocity = 0
         self._current_sgema = 0
@@ -131,6 +140,14 @@ class NeuralNetwork:
 
         self._update_weights(unbiased_velocity, unbiased_sgema)
 
+    def _should_stop_by_cost(self, new_cost):
+        if self._current_cost - new_cost > self._cost_change_limit:
+            self._stuck_count = 0
+            self._current_cost = new_cost
+        else:
+            self._stuck_count += 1
+        return self._stuck_count == self._iter_without_change
+
     def train(self, examples, expected):
         total_examples = len(examples)
         total_expected = len(expected)
@@ -141,11 +158,18 @@ class NeuralNetwork:
         expected_batches = chunks(expected, self._batch_size)
 
         for epoch in range(self._epochs):
+            if self._stop_by_cost or self._verbosity > 0:
+                current_cost = self.cost_from_examples(examples, expected)
+                should_stop = self._should_stop_by_cost(current_cost)
+                if should_stop:
+                    print(
+                        '\nCost function won\'t change for',
+                        f'{self._iter_without_change} iterations [{current_cost:0.3f}].',
+                        'Finished Training.'
+                        )
+                    break
             if self._verbosity > 0:
-                cost_str = ''
-                if self._verbosity > 1:
-                    current_cost = self.cost_from_examples(examples, expected)
-                    cost_str = f' [Current cost {current_cost:0.3f}]'
+                cost_str = f' [Current cost {current_cost:0.5f}]'
                 print(f'Running Epoch {epoch + 1} of {self._epochs}{cost_str}{" "*10}', end='\r')
 
             for batch_num, (examples_batch, expected_batch) in enumerate(zip(examples_batches, expected_batches)):
