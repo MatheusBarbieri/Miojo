@@ -83,6 +83,7 @@ class ParametersEvaluationRunner:
     def run(self, dataset, data_path, layer_structure, regularization,
             learning_rate, batch_size, epoch, turn, execution_count):
         start = time()
+        identifier = int(start)
 
         k_folds = KFolds(dataset, self._k_folds, sampling='stratified')
         splits = k_folds.split_generator()
@@ -92,7 +93,9 @@ class ParametersEvaluationRunner:
 
         all_results = []
         total_loss = 0
+        total_epochs = 0
         for index, (train_data, test_data) in enumerate(splits):
+            split_start = time()
             print(f'>>> Running for split {index + 1} of {self._k_folds}')
             train_attributes, train_expected, train_columns = attributes_and_target(train_data)
             test_attributes, test_expected, test_columns = attributes_and_target(test_data)
@@ -111,13 +114,28 @@ class ParametersEvaluationRunner:
             )
 
             neural_network.train(train_attributes.values, train_expected.values)
+            split_end = time()
+
+            split_time = split_end - split_start
+            epochs_used = neural_network._ran_epochs
+            total_epochs += epochs_used
             test_results = neural_network.predict(test_attributes.values)
             results = results_to_labels(test_results, test_columns).join(test_expected)
-            network_loss = neural_network\
-                .cost_from_examples(examples.values, expected.values)
+            network_loss = neural_network.cost_from_examples(examples.values, expected.values)
             total_loss += network_loss
 
+            split_confusion_matrix = ConfusionMatrix(results)
+
+            split_stats = [
+                split_confusion_matrix, data_path, identifier, layers,
+                network_loss, regularization, learning_rate,
+                batch_size, epoch, epochs_used, turn, split_time
+            ]
+
+            self.save_split(*split_stats)
+
             all_results.append(results)
+
         end = time()
         total_time = end - start
         average_train_time = total_time / self._k_folds
@@ -148,22 +166,31 @@ class ParametersEvaluationRunner:
             f'Regularization: {regularization}\n\tLayers: {layers}\n\tSystem Loss: {mean_loss}'))
         confusion_matrix.show()
 
+    def _create_dir(self, path):
+        if not os.path.exists(path):
+            try:
+                os.makedirs(path)
+            except Exception as e:
+                print(f'Could not create {path} path to save model.')
+                raise e
+
     def save(self, confusion_matrix, data_path,
              layers, mean_loss,
              regularization, learning_rate, batch_size, epoch,
              turn, total_time, average_train_time, execution_count):
 
-        if not os.path.exists(self._outputs_path):
-            try:
-                os.makedirs(self._outputs_path)
-            except Exception as e:
-                print(f'Could not create {self._outputs_path} path to save model.')
-                raise e
+        self._create_dir(self._outputs_path)
 
         file_path = os.path.join(self._outputs_path, 'results.csv')
         file_exists = os.path.exists(file_path)
 
         with open(file_path, 'a+') as f:
+            dataset = os.path.basename(data_path).split('.')[0]
+            accuracy = confusion_matrix.accuracy()
+            recall = confusion_matrix.macro_recall()
+            precision = confusion_matrix.macro_precision()
+            f_measure = confusion_matrix.macro_f_measure(1)
+
             if not file_exists:
                 file_header = (
                     '"dataset","accuracy","recall","precision","f_measure",'
@@ -172,16 +199,42 @@ class ParametersEvaluationRunner:
                 )
                 f.write(file_header)
 
+            entry = (
+                f'"{dataset}",{accuracy},{recall},{precision},{f_measure},'
+                f'"{layers}",{mean_loss},{regularization},{learning_rate},{batch_size},'
+                f'{epoch},{turn},{total_time},{average_train_time},{execution_count}\r\n'
+            )
+
+            f.write(entry)
+
+    def save_split(self, confusion_matrix, data_path, identifier,
+                   layers, network_cost, regularization, learning_rate,
+                   batch_size, total_epoch, epochs, turn, total_time):
+
+        self._create_dir(self._outputs_path)
+
+        file_path = os.path.join(self._outputs_path, 'results_per_split.csv')
+        file_exists = os.path.exists(file_path)
+
+        with open(file_path, 'a+') as f:
             dataset = os.path.basename(data_path).split('.')[0]
             accuracy = confusion_matrix.accuracy()
             recall = confusion_matrix.macro_recall()
             precision = confusion_matrix.macro_precision()
             f_measure = confusion_matrix.macro_f_measure(1)
 
+            if not file_exists:
+                file_header = (
+                    '"dataset","accuracy","recall","precision","f_measure",'
+                    '"layers","network_cost","regularization","learning_rate","batch_size",'
+                    '"total_epoch","epochs","turn","total_time","exec_id"\r\n'
+                )
+                f.write(file_header)
+
             entry = (
                 f'"{dataset}",{accuracy},{recall},{precision},{f_measure},'
-                f'"{layers}",{mean_loss},{regularization},{learning_rate},{batch_size},'
-                f'{epoch},{turn},{total_time},{average_train_time},{execution_count}\r\n'
+                f'"{layers}",{network_cost},{regularization},{learning_rate},{batch_size},'
+                f'{total_epoch},{epochs},{turn},{total_time},{identifier}\r\n'
             )
 
             f.write(entry)
