@@ -77,9 +77,9 @@ class GradientNumericValidator(baseValidator):
             self.print_structure(self.neural_network_gradients, precision='0.20f')
             print('{:=^80}'.format(' Numeric Gradients '))
             self.print_structure(self.numeric_gradients, precision='0.20f')
-            print('{:=^80}'.format(' Gradients mean absolute error '))
+            print('{:=^80}'.format(' Gradients absolute error '))
             self.print_structure(self.mean_absolute_error_per_gradient(), precision='0.20f')
-        print('{:=^80}'.format(' Model mean absolute error '))
+        print('{:=^80}'.format(' Mean absolute error '))
         print(f'{self.mean_absolute_error():0.20f}')
 
 
