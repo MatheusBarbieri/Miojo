@@ -45,7 +45,7 @@ class CostEvaluationNeuralNetwork(NeuralNetwork):
         with open(file_path, 'a+') as f:
             if not file_exists:
                 file_header = (
-                    '"cost","batches_count","examples_count,"current_batch_size","batch_size",'
+                    '"cost","batches_count","examples_count","current_batch_size","batch_size",'
                     '"epoch","total_epochs","learning_rate","regularization","beta_1","beta_2",'
                     '"execution_id"\r\n'
                 )
